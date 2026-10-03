@@ -52,12 +52,23 @@ jobs:
           Copy-Item START_JEV_ROUTER.bat, README.md, README_EN.md, README_FA.md, SECURITY.md, THIRD_PARTY_NOTICES.md, LICENSE, VERSION build\JevRouter\
           Compress-Archive -Path build\JevRouter -DestinationPath JevRouter-Windows-Portable.zip -Force
 
-      - name: Try to build standalone EXE
+      - name: Build standalone EXE
         shell: powershell
-        continue-on-error: true
         run: |
           Install-Module ps2exe -Scope CurrentUser -Force -AllowClobber
-          Invoke-PS2EXE .\src\JevRouter.ps1 .\build\JevRouter\src\JevRouter.exe -noConsole -title 'Jev Router for Windows' -product 'Jev Router for Windows' -version '0.1.0.0'
+          Invoke-PS2EXE .\src\JevRouter.ps1 .\build\JevRouter\src\JevRouter.exe -noConsole -title 'Jev Router for Windows' -product 'Jev Router for Windows' -version '0.1.1.0'
+
+      - name: Smoke-test standalone EXE
+        shell: powershell
+        run: |
+          $p = Start-Process -FilePath .\build\JevRouter\src\JevRouter.exe -ArgumentList '-SelfTest' -PassThru -Wait
+          if ($p.ExitCode -ne 0) {
+            throw "JevRouter.exe self-test failed with exit code $($p.ExitCode)."
+          }
+
+      - name: Repack with standalone EXE
+        shell: powershell
+        run: |
           Compress-Archive -Path build\JevRouter -DestinationPath JevRouter-Windows-Portable.zip -Force
 
       - name: Upload workflow artifact
