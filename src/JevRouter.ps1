@@ -1,10 +1,39 @@
 #requires -Version 5.1
+param([switch]$SelfTest)
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System.Xaml
-Import-Module (Join-Path $PSScriptRoot 'RouterCore.psm1') -Force
+$runtimeRoot = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($runtimeRoot)) {
+    $processPath = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+    if (-not [string]::IsNullOrWhiteSpace($processPath)) {
+        $runtimeRoot = Split-Path -Parent $processPath
+    }
+}
+if ([string]::IsNullOrWhiteSpace($runtimeRoot)) {
+    $runtimeRoot = [AppDomain]::CurrentDomain.BaseDirectory
+}
+if ([string]::IsNullOrWhiteSpace($runtimeRoot)) {
+    throw 'Could not determine the Jev Router application directory.'
+}
+
+$modulePath = Join-Path $runtimeRoot 'RouterCore.psm1'
+if (-not (Test-Path -LiteralPath $modulePath)) {
+    throw "RouterCore.psm1 was not found next to the application: $modulePath"
+}
+
+Import-Module $modulePath -Force
 Initialize-JevRouterStorage
+
+if ($SelfTest) {
+    $status = Get-SystemStatus
+    Write-Output "SELFTEST_OK"
+    Write-Output ("AppData={0}" -f $status.KeySaved)
+    exit 0
+}
+
+Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System.Xaml
 
 [xml]$xaml = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
