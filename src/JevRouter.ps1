@@ -89,7 +89,7 @@ Initialize-JevRouterStorage
       <TextBlock x:Name="ClaudeDetection" Text="Checking Claude..." Foreground="{StaticResource Muted}"/>
       <TextBlock x:Name="ClaudePluginStatus" Text="Plugin: checking..." Foreground="{StaticResource Muted}" Margin="0,7,0,0"/>
       <Border Background="#0D121B" BorderBrush="#263244" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,14,0,0">
-       <TextBlock x:Name="ClaudeInstructions" Text="1. Click Prepare Claude&#x0a;2. Claude opens&#x0a;3. Customize → Plugins → Add marketplace&#x0a;4. Paste the copied marketplace and install Jev Model Router" Foreground="#AAB6C7" FontSize="10.5" LineHeight="17" TextWrapping="Wrap"/>
+       <TextBlock x:Name="ClaudeInstructions" Text="1. Click Prepare Claude&#x0a;2. Claude opens&#x0a;3. Customize > Plugins > Add marketplace&#x0a;4. Paste the copied marketplace and install Jev Model Router" Foreground="#AAB6C7" FontSize="10.5" LineHeight="17" TextWrapping="Wrap"/>
       </Border>
      </StackPanel>
      <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,18,0,0">
@@ -147,7 +147,7 @@ function Refresh-Ui {
   $ClaudePluginStatus.Foreground=B $(if($s.ClaudePlugin){'#64D6A6'}else{'#92A0B5'})
   if($s.KeySaved){ $KeyStatus.Text='A TypeSafe key is saved for this Windows user.'; $KeyStatus.Foreground=B '#64D6A6' }
   $git=$(if($s.Git){'ready'}else{'missing'}); $wg=$(if($s.Winget){'ready'}else{'missing'})
-  $FooterStatus.Text='Node '+$s.NodeMajor+' · Git '+$git+' · WinGet '+$wg
+  $FooterStatus.Text='Node '+$s.NodeMajor+' | Git '+$git+' | WinGet '+$wg
  } catch { $FooterStatus.Text='Status check failed: '+$_.Exception.Message }
 }
 
@@ -190,7 +190,7 @@ $ConnectCodexButton.Add_Click({
 $DisconnectCodexButton.Add_Click({if([Windows.MessageBox]::Show($window,'Restore Codex configuration and remove Jev Codex Bridge?','Disconnect Codex','YesNo','Question') -eq 'Yes'){Background 'Disconnect Codex'}})
 $PrepareClaudeButton.Add_Click({
  $key=Get-SavedTypeSafeKey;if(-not $key){Err 'Verify and save your TypeSafe API key first.';return}
- try{$r=Prepare-ClaudeIntegration -ApiKey $key;$ClaudeInstructions.Text='Marketplace copied: '+$r.Marketplace+[Environment]::NewLine+[Environment]::NewLine+'In Claude: Customize → Plugins → Add → Add marketplace → paste → install Jev Model Router.';$FooterStatus.Text='Claude opened and marketplace copied.'}catch{Err $_.Exception.Message}
+ try{$r=Prepare-ClaudeIntegration -ApiKey $key;$ClaudeInstructions.Text='Marketplace copied: '+$r.Marketplace+[Environment]::NewLine+[Environment]::NewLine+'In Claude: Customize > Plugins > Add > Add marketplace > paste > install Jev Model Router.';$FooterStatus.Text='Claude opened and marketplace copied.'}catch{Err $_.Exception.Message}
 })
 $OpenClaudeButton.Add_Click({try{Start-Process 'claude://code'}catch{Err 'Claude Desktop could not be opened.'}})
 $RefreshButton.Add_Click({Refresh-Ui})
