@@ -1,6 +1,20 @@
 # Jev Router for Windows
 
-**English** · [فارسی](README_FA.md)
+<p align="center">
+  <strong>A graphical Windows setup and control panel for TypeSafe Jev routing.</strong>
+</p>
+
+<p align="center">
+  <strong>English</strong>
+  &nbsp;|&nbsp;
+  <a href="README_FA.md"><strong>فارسی</strong></a>
+</p>
+
+<p align="center">
+  <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square&logo=windows">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
+  <img alt="Status" src="https://img.shields.io/badge/status-alpha-f0c35a?style=flat-square">
+</p>
 
 ## What this project is
 
