@@ -26,10 +26,10 @@ if (-not (Test-Path -LiteralPath $modulePath)) {
 Import-Module $modulePath -Force
 Initialize-JevRouterStorage
 
-if ($SelfTest) {
+if ($SelfTest -or $env:JEV_ROUTER_SELFTEST -eq '1') {
     $status = Get-SystemStatus
     Write-Output "SELFTEST_OK"
-    Write-Output ("AppData={0}" -f $status.KeySaved)
+    Write-Output ("KeySaved={0}" -f $status.KeySaved)
     exit 0
 }
 
