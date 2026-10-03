@@ -37,7 +37,7 @@ The target user is someone who can download an app, paste a TypeSafe API key, an
 
 1. Download the latest Windows package from **Releases**.
 2. Extract it.
-3. Double-click `START_JEV_ROUTER.bat` (or the compiled `JevRouter.exe` when available in the Release package).
+3. Double-click `START_JEV_ROUTER.bat`.
 4. Paste your TypeSafe API key.
 5. Click **Verify & save**.
 6. Choose **Connect Codex** or **Prepare Claude**.
@@ -127,7 +127,7 @@ The portable UI is written in Windows PowerShell + WPF so a clean Windows machin
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\JevRouter.ps1
 ```
 
-The Release workflow can also compile the launcher into a Windows `.exe` using PS2EXE and package it with the PowerShell module.
+The launcher starts the WPF interface through Windows PowerShell in the background, so normal users do not need to open a terminal.
 
 ## Third-party projects
 
