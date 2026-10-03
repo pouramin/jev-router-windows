@@ -2,10 +2,27 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $script:AppName = 'Jev Router for Windows'
-$script:AppDataDir = Join-Path $env:LOCALAPPDATA 'JevRouterForWindows'
+
+$appDataRoot = $env:LOCALAPPDATA
+if ([string]::IsNullOrWhiteSpace($appDataRoot)) {
+    $appDataRoot = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
+}
+if ([string]::IsNullOrWhiteSpace($appDataRoot)) {
+    throw 'Windows LocalApplicationData path is unavailable.'
+}
+
+$userHome = $HOME
+if ([string]::IsNullOrWhiteSpace($userHome)) {
+    $userHome = [Environment]::GetFolderPath([Environment+SpecialFolder]::UserProfile)
+}
+if ([string]::IsNullOrWhiteSpace($userHome)) {
+    throw 'Windows user profile path is unavailable.'
+}
+
+$script:AppDataDir = Join-Path $appDataRoot 'JevRouterForWindows'
 $script:SecretFile = Join-Path $script:AppDataDir 'typesafe.key'
 $script:LogFile = Join-Path $script:AppDataDir 'app.log'
-$script:BridgeEnvFile = Join-Path $HOME '.jev-router.env'
+$script:BridgeEnvFile = Join-Path $userHome '.jev-router.env'
 
 function Initialize-JevRouterStorage {
     New-Item -ItemType Directory -Path $script:AppDataDir -Force | Out-Null
