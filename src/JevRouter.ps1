@@ -37,105 +37,275 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
 
 [xml]$xaml = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
- xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Jev Router for Windows"
- Width="920" Height="700" MinWidth="820" MinHeight="620" WindowStartupLocation="CenterScreen"
- Background="#090C13" Foreground="#EEF2F7" FontFamily="Segoe UI">
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="Jev Router for Windows"
+ Width="1120" Height="760" MinWidth="900" MinHeight="680"
+ WindowStartupLocation="CenterScreen"
+ Background="#080B11" Foreground="#F4F7FB"
+ FontFamily="Segoe UI"
+ SnapsToDevicePixels="True">
  <Window.Resources>
-  <SolidColorBrush x:Key="Panel" Color="#111722"/>
-  <SolidColorBrush x:Key="Border" Color="#263244"/>
-  <SolidColorBrush x:Key="Muted" Color="#92A0B5"/>
-  <Style TargetType="Button">
-   <Setter Property="Background" Value="#202B3A"/><Setter Property="Foreground" Value="#EEF2F7"/>
-   <Setter Property="BorderBrush" Value="#35445A"/><Setter Property="BorderThickness" Value="1"/>
-   <Setter Property="Padding" Value="15,9"/><Setter Property="FontWeight" Value="SemiBold"/>
+  <SolidColorBrush x:Key="Panel" Color="#101722"/>
+  <SolidColorBrush x:Key="PanelSoft" Color="#0D131D"/>
+  <SolidColorBrush x:Key="Border" Color="#243247"/>
+  <SolidColorBrush x:Key="BorderStrong" Color="#33445F"/>
+  <SolidColorBrush x:Key="Text" Color="#F4F7FB"/>
+  <SolidColorBrush x:Key="Muted" Color="#93A2B8"/>
+  <SolidColorBrush x:Key="Muted2" Color="#6F8098"/>
+  <SolidColorBrush x:Key="Accent" Color="#F0C35A"/>
+  <SolidColorBrush x:Key="Green" Color="#63D5A5"/>
+  <SolidColorBrush x:Key="Blue" Color="#82A4FF"/>
+
+  <Style x:Key="PrimaryButton" TargetType="Button">
+   <Setter Property="Background" Value="#6B5420"/>
+   <Setter Property="Foreground" Value="#FFF8E6"/>
+   <Setter Property="BorderBrush" Value="#9A7A2D"/>
+   <Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="Padding" Value="18,10"/>
+   <Setter Property="FontWeight" Value="SemiBold"/>
    <Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="Button">
+      <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="9" Padding="{TemplateBinding Padding}">
+       <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      </Border>
+      <ControlTemplate.Triggers>
+       <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonBorder" Property="Background" Value="#826725"/></Trigger>
+       <Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonBorder" Property="Opacity" Value="0.86"/></Trigger>
+       <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonBorder" Property="Opacity" Value="0.45"/></Trigger>
+      </ControlTemplate.Triggers>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
   </Style>
+
+  <Style x:Key="GreenButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+   <Setter Property="Background" Value="#174C3F"/>
+   <Setter Property="BorderBrush" Value="#2D7864"/>
+   <Setter Property="Foreground" Value="#DFFFF4"/>
+  </Style>
+
+  <Style x:Key="BlueButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+   <Setter Property="Background" Value="#263E73"/>
+   <Setter Property="BorderBrush" Value="#4164A8"/>
+   <Setter Property="Foreground" Value="#EEF3FF"/>
+  </Style>
+
+  <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+   <Setter Property="Background" Value="#172131"/>
+   <Setter Property="BorderBrush" Value="#304158"/>
+   <Setter Property="Foreground" Value="#D7E0EB"/>
+  </Style>
+
   <Style TargetType="PasswordBox">
-   <Setter Property="Background" Value="#0D121B"/><Setter Property="Foreground" Value="#EEF2F7"/>
-   <Setter Property="BorderBrush" Value="#314057"/><Setter Property="BorderThickness" Value="1"/>
-   <Setter Property="Padding" Value="12,9"/>
+   <Setter Property="Background" Value="#0A1018"/>
+   <Setter Property="Foreground" Value="#F4F7FB"/>
+   <Setter Property="BorderBrush" Value="#304158"/>
+   <Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="Padding" Value="13,10"/>
+   <Setter Property="FontSize" Value="13"/>
+   <Setter Property="CaretBrush" Value="#F0C35A"/>
   </Style>
  </Window.Resources>
- <Grid Margin="26">
-  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
 
-  <Grid Grid.Row="0" Margin="0,0,0,22">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <StackPanel>
-    <TextBlock Text="JEV ROUTER" Foreground="#F0C35A" FontSize="12" FontWeight="Bold"/>
-    <TextBlock Text="Jev Router for Windows" FontSize="29" FontWeight="Bold" Margin="0,4,0,0"/>
-    <TextBlock Text="TypeSafe Jev routing for Windows, without manual terminal setup." Foreground="{StaticResource Muted}" FontSize="13" Margin="0,7,0,0"/>
-   </StackPanel>
-   <Border Grid.Column="1" Background="#121B27" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="16" Padding="12,7" VerticalAlignment="Top">
-    <StackPanel Orientation="Horizontal"><Ellipse x:Name="GlobalDot" Width="8" Height="8" Fill="#92A0B5" Margin="0,0,7,0"/><TextBlock x:Name="GlobalStatus" Text="Ready" Foreground="{StaticResource Muted}"/></StackPanel>
-   </Border>
-  </Grid>
+ <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+  <Grid Margin="28,24,28,26" MaxWidth="1180" HorizontalAlignment="Center">
+   <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+   </Grid.RowDefinitions>
 
-  <Border Grid.Row="1" Background="{StaticResource Panel}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="15" Padding="18" Margin="0,0,0,16">
-   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <StackPanel>
-     <TextBlock Text="TypeSafe API key" FontWeight="SemiBold"/>
-     <TextBlock Text="Verified with TypeSafe and stored locally with Windows DPAPI for this Windows user." Foreground="{StaticResource Muted}" FontSize="11" Margin="0,4,0,10"/>
-     <PasswordBox x:Name="ApiKeyBox" Height="39" MaxLength="500"/>
-     <TextBlock x:Name="KeyStatus" Text="Paste your TypeSafe key, then Verify &amp; save." Foreground="{StaticResource Muted}" FontSize="11" Margin="0,7,0,0"/>
+   <!-- Header -->
+   <Grid Grid.Row="0" Margin="0,0,0,22">
+    <Grid.ColumnDefinitions>
+     <ColumnDefinition Width="Auto"/>
+     <ColumnDefinition Width="*"/>
+     <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>
+
+    <Border Width="52" Height="52" CornerRadius="14" Background="#E8B94B" VerticalAlignment="Center">
+     <TextBlock Text="J" Foreground="#0C1016" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Border>
+
+    <StackPanel Grid.Column="1" Margin="15,1,0,0" VerticalAlignment="Center">
+     <TextBlock Text="Jev Router for Windows" FontSize="25" FontWeight="Bold"/>
+     <TextBlock Text="TypeSafe Jev routing for Windows - simple setup, clear status, no manual terminal work."
+                Foreground="{StaticResource Muted}" FontSize="12.5" Margin="0,5,0,0"/>
     </StackPanel>
-    <Button x:Name="VerifyButton" Grid.Column="1" Content="Verify &amp; save" MinWidth="130" Margin="16,24,0,0" VerticalAlignment="Top" Background="#6A5420" BorderBrush="#9B7A2E"/>
-   </Grid>
-  </Border>
 
-  <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-   <Border Grid.Column="0" Background="{StaticResource Panel}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="15" Padding="19">
-    <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-     <StackPanel>
-      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-       <StackPanel><TextBlock Text="Codex" FontSize="20" FontWeight="Bold"/><TextBlock Text="Desktop + CLI" Foreground="{StaticResource Muted}" FontSize="11"/></StackPanel>
-       <Border Grid.Column="1" Background="#143B31" CornerRadius="12" Padding="9,5"><TextBlock Text="AUTOMATIC" Foreground="#64D6A6" FontSize="10" FontWeight="Bold"/></Border>
-      </Grid>
-      <TextBlock Text="Installs Jev Codex Bridge, configures Codex, and runs routing as a background Windows task. Jev can select model and reasoning effort per turn." TextWrapping="Wrap" Foreground="#C4CEDC" FontSize="12" LineHeight="19" Margin="0,16,0,0"/>
+    <Border Grid.Column="2" Background="#101923" BorderBrush="#26364A" BorderThickness="1" CornerRadius="16"
+            Padding="12,7" VerticalAlignment="Center">
+     <StackPanel Orientation="Horizontal">
+      <Ellipse x:Name="GlobalDot" Width="8" Height="8" Fill="#92A0B5" Margin="0,0,7,0" VerticalAlignment="Center"/>
+      <TextBlock x:Name="GlobalStatus" Text="Ready" Foreground="#A9B6C8" FontSize="11.5" VerticalAlignment="Center"/>
      </StackPanel>
-     <StackPanel Grid.Row="1" Margin="0,22,0,0">
-      <TextBlock x:Name="CodexDetection" Text="Checking Codex..." Foreground="{StaticResource Muted}"/>
-      <TextBlock x:Name="CodexBridgeStatus" Text="Bridge: checking..." Foreground="{StaticResource Muted}" Margin="0,7,0,0"/>
-      <TextBlock Text="Missing Git or Node.js can be installed with WinGet after you confirm." Foreground="#6F7D91" FontSize="10" Margin="0,14,0,0" TextWrapping="Wrap"/>
-     </StackPanel>
-     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,18,0,0">
-      <Button x:Name="ConnectCodexButton" Content="Connect Codex" MinWidth="128" Background="#1E4F43" BorderBrush="#2D7664"/>
-      <Button x:Name="DisconnectCodexButton" Content="Disconnect" MinWidth="102" Margin="9,0,0,0"/>
-     </StackPanel>
+    </Border>
+   </Grid>
+
+   <!-- TypeSafe access -->
+   <Border Grid.Row="1" Background="{StaticResource Panel}" BorderBrush="{StaticResource Border}"
+           BorderThickness="1" CornerRadius="16" Padding="20" Margin="0,0,0,16">
+    <Grid>
+     <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+     </Grid.RowDefinitions>
+
+     <Grid>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+       <Border Width="30" Height="30" CornerRadius="9" Background="#332A15" Margin="0,0,11,0">
+        <TextBlock Text="1" Foreground="{StaticResource Accent}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+       </Border>
+       <StackPanel>
+        <TextBlock Text="Connect TypeSafe" FontSize="15" FontWeight="SemiBold"/>
+        <TextBlock Text="Your API key is verified with TypeSafe and stored locally for this Windows user."
+                   Foreground="{StaticResource Muted}" FontSize="10.5" Margin="0,3,0,0"/>
+       </StackPanel>
+      </StackPanel>
+      <TextBlock Grid.Column="1" x:Name="KeyStatus" Text="Not connected" Foreground="{StaticResource Muted}"
+                 FontSize="10.5" VerticalAlignment="Center"/>
+     </Grid>
+
+     <Grid Grid.Row="1" Margin="41,15,0,0">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <PasswordBox x:Name="ApiKeyBox" Height="42" MaxLength="500" VerticalContentAlignment="Center"/>
+      <Button x:Name="VerifyButton" Grid.Column="2" Content="Verify &amp; save" MinWidth="132" Height="42"
+              Style="{StaticResource PrimaryButton}"/>
+     </Grid>
     </Grid>
    </Border>
 
-   <Border Grid.Column="2" Background="{StaticResource Panel}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="15" Padding="19">
-    <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-     <StackPanel>
-      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-       <StackPanel><TextBlock Text="Claude Code" FontSize="20" FontWeight="Bold"/><TextBlock Text="Claude Desktop Code tab" Foreground="{StaticResource Muted}" FontSize="11"/></StackPanel>
-       <Border Grid.Column="1" Background="#202E50" CornerRadius="12" Padding="9,5"><TextBlock Text="PLUGIN" Foreground="#7EA3FF" FontSize="10" FontWeight="Bold"/></Border>
+   <!-- Integrations -->
+   <Grid Grid.Row="2">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+
+    <!-- Codex card -->
+    <Border Grid.Column="0" Background="{StaticResource Panel}" BorderBrush="{StaticResource Border}"
+            BorderThickness="1" CornerRadius="16" Padding="20">
+     <Grid>
+      <Grid.RowDefinitions>
+       <RowDefinition Height="Auto"/>
+       <RowDefinition Height="Auto"/>
+       <RowDefinition Height="Auto"/>
+       <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Grid>
+       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <Border Width="42" Height="42" CornerRadius="12" Background="#143C34">
+        <TextBlock Text="C" Foreground="{StaticResource Green}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+       </Border>
+       <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+        <TextBlock Text="Codex" FontSize="19" FontWeight="Bold"/>
+        <TextBlock Text="Desktop + CLI" Foreground="{StaticResource Muted}" FontSize="10.5" Margin="0,2,0,0"/>
+       </StackPanel>
+       <Border Grid.Column="2" Background="#123C31" BorderBrush="#1E5D4C" BorderThickness="1" CornerRadius="12" Padding="9,5" VerticalAlignment="Top">
+        <TextBlock Text="AUTOMATIC" Foreground="{StaticResource Green}" FontSize="9.5" FontWeight="Bold"/>
+       </Border>
       </Grid>
-      <TextBlock Text="Prepares the TypeSafe key and opens Claude. Install Jev Model Router from the graphical Plugins screen. This alpha does not claim the transparent proxy behavior used by Codex." TextWrapping="Wrap" Foreground="#C4CEDC" FontSize="12" LineHeight="19" Margin="0,16,0,0"/>
-     </StackPanel>
-     <StackPanel Grid.Row="1" Margin="0,22,0,0">
-      <TextBlock x:Name="ClaudeDetection" Text="Checking Claude..." Foreground="{StaticResource Muted}"/>
-      <TextBlock x:Name="ClaudePluginStatus" Text="Plugin: checking..." Foreground="{StaticResource Muted}" Margin="0,7,0,0"/>
-      <Border Background="#0D121B" BorderBrush="#263244" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,14,0,0">
-       <TextBlock x:Name="ClaudeInstructions" Text="1. Click Prepare Claude&#x0a;2. Claude opens&#x0a;3. Customize > Plugins > Add marketplace&#x0a;4. Paste the copied marketplace and install Jev Model Router" Foreground="#AAB6C7" FontSize="10.5" LineHeight="17" TextWrapping="Wrap"/>
+
+      <TextBlock Grid.Row="1" Text="Automatic per-turn routing through Jev Codex Bridge. Jev can select the model and reasoning effort while Codex keeps your existing sign-in."
+                 TextWrapping="Wrap" Foreground="#C9D2DE" FontSize="11.5" LineHeight="18" Margin="0,16,0,0"/>
+
+      <Border Grid.Row="2" Background="{StaticResource PanelSoft}" BorderBrush="#1E2B3D" BorderThickness="1" CornerRadius="11" Padding="13" Margin="0,16,0,0">
+       <StackPanel>
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <TextBlock Text="Codex app" Foreground="{StaticResource Muted}" FontSize="10.5"/>
+         <TextBlock x:Name="CodexDetection" Grid.Column="1" Text="Checking..." Foreground="{StaticResource Muted}" FontSize="10.5" FontWeight="SemiBold"/>
+        </Grid>
+        <Border Height="1" Background="#1D2939" Margin="0,10"/>
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <TextBlock Text="Jev Bridge" Foreground="{StaticResource Muted}" FontSize="10.5"/>
+         <TextBlock x:Name="CodexBridgeStatus" Grid.Column="1" Text="Checking..." Foreground="{StaticResource Muted}" FontSize="10.5" FontWeight="SemiBold"/>
+        </Grid>
+       </StackPanel>
       </Border>
+
+      <Grid Grid.Row="3" Margin="0,18,0,0">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <Button x:Name="ConnectCodexButton" Content="Connect Codex" Height="42" Style="{StaticResource GreenButton}"/>
+       <Button x:Name="DisconnectCodexButton" Grid.Column="2" Content="Disconnect" Height="42" MinWidth="102" Style="{StaticResource SecondaryButton}"/>
+      </Grid>
+     </Grid>
+    </Border>
+
+    <!-- Claude card -->
+    <Border Grid.Column="2" Background="{StaticResource Panel}" BorderBrush="{StaticResource Border}"
+            BorderThickness="1" CornerRadius="16" Padding="20">
+     <Grid>
+      <Grid.RowDefinitions>
+       <RowDefinition Height="Auto"/>
+       <RowDefinition Height="Auto"/>
+       <RowDefinition Height="Auto"/>
+       <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Grid>
+       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <Border Width="42" Height="42" CornerRadius="12" Background="#202D52">
+        <TextBlock Text="A" Foreground="{StaticResource Blue}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+       </Border>
+       <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+        <TextBlock Text="Claude Code" FontSize="19" FontWeight="Bold"/>
+        <TextBlock Text="Claude Desktop - Code tab" Foreground="{StaticResource Muted}" FontSize="10.5" Margin="0,2,0,0"/>
+       </StackPanel>
+       <Border Grid.Column="2" Background="#1D2C52" BorderBrush="#30477E" BorderThickness="1" CornerRadius="12" Padding="9,5" VerticalAlignment="Top">
+        <TextBlock Text="PLUGIN" Foreground="{StaticResource Blue}" FontSize="9.5" FontWeight="Bold"/>
+       </Border>
+      </Grid>
+
+      <TextBlock Grid.Row="1" Text="Plugin-assisted setup for Claude Code. The app prepares your TypeSafe key and opens Claude, then you finish the plugin install from Claude's graphical Plugins screen."
+                 TextWrapping="Wrap" Foreground="#C9D2DE" FontSize="11.5" LineHeight="18" Margin="0,16,0,0"/>
+
+      <Border Grid.Row="2" Background="{StaticResource PanelSoft}" BorderBrush="#1E2B3D" BorderThickness="1" CornerRadius="11" Padding="13" Margin="0,16,0,0">
+       <StackPanel>
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <TextBlock Text="Claude Desktop" Foreground="{StaticResource Muted}" FontSize="10.5"/>
+         <TextBlock x:Name="ClaudeDetection" Grid.Column="1" Text="Checking..." Foreground="{StaticResource Muted}" FontSize="10.5" FontWeight="SemiBold"/>
+        </Grid>
+        <Border Height="1" Background="#1D2939" Margin="0,10"/>
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <TextBlock Text="Jev Model Router" Foreground="{StaticResource Muted}" FontSize="10.5"/>
+         <TextBlock x:Name="ClaudePluginStatus" Grid.Column="1" Text="Checking..." Foreground="{StaticResource Muted}" FontSize="10.5" FontWeight="SemiBold"/>
+        </Grid>
+       </StackPanel>
+      </Border>
+
+      <Grid Grid.Row="3" Margin="0,18,0,0">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <Button x:Name="PrepareClaudeButton" Content="Prepare Claude" Height="42" Style="{StaticResource BlueButton}"/>
+       <Button x:Name="OpenClaudeButton" Grid.Column="2" Content="Open Claude" Height="42" MinWidth="102" Style="{StaticResource SecondaryButton}"/>
+      </Grid>
+     </Grid>
+    </Border>
+   </Grid>
+
+   <!-- Footer -->
+   <Border Grid.Row="3" Background="#0C121B" BorderBrush="#1F2C3D" BorderThickness="1"
+           CornerRadius="12" Padding="12,10" Margin="0,16,0,0">
+    <Grid>
+     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+      <Border Background="#121D2A" CornerRadius="8" Padding="9,5" Margin="0,0,7,0">
+       <TextBlock Text="SYSTEM" Foreground="{StaticResource Muted2}" FontSize="9.5" FontWeight="Bold"/>
+      </Border>
+      <TextBlock x:Name="FooterStatus" Text="Checking Windows prerequisites..." Foreground="{StaticResource Muted}" FontSize="10.5" VerticalAlignment="Center"/>
      </StackPanel>
-     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,18,0,0">
-      <Button x:Name="PrepareClaudeButton" Content="Prepare Claude" MinWidth="128" Background="#2A3D66" BorderBrush="#3B5B93"/>
-      <Button x:Name="OpenClaudeButton" Content="Open Claude" MinWidth="102" Margin="9,0,0,0"/>
-     </StackPanel>
+     <TextBlock Grid.Column="1" Text="Alpha - community integration" Foreground="#52637A" FontSize="9.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+     <Button x:Name="RefreshButton" Grid.Column="2" Content="Refresh status" Height="34" Padding="12,6" Style="{StaticResource SecondaryButton}" FontSize="10.5"/>
     </Grid>
    </Border>
   </Grid>
-
-  <Border Grid.Row="3" Background="#0D121B" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,16,0,0">
-   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <TextBlock x:Name="FooterStatus" Text="No API calls are made until you verify the key or connect a router." Foreground="{StaticResource Muted}" FontSize="10.5" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-    <Button x:Name="RefreshButton" Grid.Column="1" Content="Refresh status" Padding="12,7" FontSize="10.5"/>
-   </Grid>
-  </Border>
- </Grid>
+ </ScrollViewer>
 </Window>
 '@
 
