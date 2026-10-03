@@ -110,8 +110,13 @@ jobs:
           This is an unsigned alpha build. Review SECURITY.md and THIRD_PARTY_NOTICES.md before using it with sensitive repositories.
           "@
 
-          gh release view $env:RELEASE_TAG *> $null
-          if ($LASTEXITCODE -eq 0) {
+          $previousPreference = $ErrorActionPreference
+          $ErrorActionPreference = 'SilentlyContinue'
+          gh release view $env:RELEASE_TAG 2>$null | Out-Null
+          $releaseExists = ($LASTEXITCODE -eq 0)
+          $ErrorActionPreference = $previousPreference
+
+          if ($releaseExists) {
             gh release upload $env:RELEASE_TAG JevRouter-Windows-Portable.zip --clobber
             gh release edit $env:RELEASE_TAG --title $env:RELEASE_TITLE --notes $notes --prerelease
           }
