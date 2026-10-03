@@ -336,15 +336,15 @@ function Busy([bool]$Value,[string]$Message='Working...') {
 function Refresh-Ui {
  try {
   $s=Get-SystemStatus
-  $CodexDetection.Text=$(if($s.Codex){'Codex: detected'}else{'Codex: not detected yet'})
-  $CodexBridgeStatus.Text=$(if($s.CodexBridge){'Jev Bridge: installed'}else{'Jev Bridge: not installed'})
-  $ClaudeDetection.Text=$(if($s.ClaudeDesktop){'Claude Desktop: detected'}else{'Claude Desktop: not detected yet'})
-  $ClaudePluginStatus.Text=$(if($s.ClaudePlugin){'Jev Model Router plugin: detected'}else{'Jev Model Router plugin: not detected'})
+  $CodexDetection.Text=$(if($s.Codex){'Detected'}else{'Not detected'})
+  $CodexBridgeStatus.Text=$(if($s.CodexBridge){'Installed'}else{'Not installed'})
+  $ClaudeDetection.Text=$(if($s.ClaudeDesktop){'Detected'}else{'Not detected'})
+  $ClaudePluginStatus.Text=$(if($s.ClaudePlugin){'Installed'}else{'Not installed'})
   $CodexDetection.Foreground=B $(if($s.Codex){'#64D6A6'}else{'#92A0B5'})
   $CodexBridgeStatus.Foreground=B $(if($s.CodexBridge){'#64D6A6'}else{'#92A0B5'})
   $ClaudeDetection.Foreground=B $(if($s.ClaudeDesktop){'#64D6A6'}else{'#92A0B5'})
   $ClaudePluginStatus.Foreground=B $(if($s.ClaudePlugin){'#64D6A6'}else{'#92A0B5'})
-  if($s.KeySaved){ $KeyStatus.Text='A TypeSafe key is saved for this Windows user.'; $KeyStatus.Foreground=B '#64D6A6' }
+  if($s.KeySaved){ $KeyStatus.Text='Saved locally'; $KeyStatus.Foreground=B '#64D6A6' } else { $KeyStatus.Text='Not connected'; $KeyStatus.Foreground=B '#92A0B5' }
   $git=$(if($s.Git){'ready'}else{'missing'}); $wg=$(if($s.Winget){'ready'}else{'missing'})
   $FooterStatus.Text='Node '+$s.NodeMajor+' | Git '+$git+' | WinGet '+$wg
  } catch { $FooterStatus.Text='Status check failed: '+$_.Exception.Message }
