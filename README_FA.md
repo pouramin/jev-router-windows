@@ -25,7 +25,7 @@
 
 1. آخرین فایل Windows رو از بخش **Releases** دانلود کن.
 2. فایل ZIP رو Extract کن.
-3. روی `START_JEV_ROUTER.bat` دابل‌کلیک کن. اگر نسخه‌ی Release شامل `JevRouter.exe` بود، می‌تونی مستقیم همون رو اجرا کنی.
+3. روی `START_JEV_ROUTER.bat` دابل‌کلیک کن.
 4. کلید `TypeSafe` رو Paste کن.
 5. روی **Verify & save** کلیک کن.
 6. برای Codex روی **Connect Codex** و برای Claude روی **Prepare Claude** بزن.
@@ -119,7 +119,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\JevRouter.ps1
 
 <div dir="rtl" align="right">
 
-Workflow مربوط به Release می‌تونه با `PS2EXE` نسخه‌ی `.exe` هم بسازه و همراه Moduleها داخل فایل ZIP قرار بده.
+فایل `START_JEV_ROUTER.bat` رابط WPF رو با Windows PowerShell در پس‌زمینه اجرا می‌کنه؛ بنابراین کاربر عادی نیازی به باز کردن Terminal نداره.
 
 ## پروژه‌های Third-party
 
