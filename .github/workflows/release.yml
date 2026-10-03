@@ -61,7 +61,8 @@ jobs:
       - name: Smoke-test standalone EXE
         shell: powershell
         run: |
-          $p = Start-Process -FilePath .\build\JevRouter\src\JevRouter.exe -ArgumentList '-SelfTest' -PassThru -Wait
+          $env:JEV_ROUTER_SELFTEST = '1'
+          $p = Start-Process -FilePath .\build\JevRouter\src\JevRouter.exe -PassThru -Wait
           if ($p.ExitCode -ne 0) {
             throw "JevRouter.exe self-test failed with exit code $($p.ExitCode)."
           }
