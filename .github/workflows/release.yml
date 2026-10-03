@@ -1,0 +1,120 @@
+name: Build Windows package
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: jev-router-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Parse PowerShell sources
+        shell: powershell
+        run: |
+          $failed = $false
+          foreach ($file in @('src/JevRouter.ps1','src/RouterCore.psm1')) {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file),
+              [ref]$tokens,
+              [ref]$parseErrors
+            ) | Out-Null
+
+            if ($parseErrors.Count) {
+              $failed = $true
+              foreach ($errorItem in $parseErrors) {
+                Write-Error "$file : $($errorItem.Message)"
+              }
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: Build portable package
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Path build\JevRouter -Force | Out-Null
+          Copy-Item src build\JevRouter\src -Recurse
+          Copy-Item docs build\JevRouter\docs -Recurse
+          Copy-Item START_JEV_ROUTER.bat, README.md, README_EN.md, README_FA.md, SECURITY.md, THIRD_PARTY_NOTICES.md, LICENSE, VERSION build\JevRouter\
+          Compress-Archive -Path build\JevRouter -DestinationPath JevRouter-Windows-Portable.zip -Force
+
+      - name: Try to build standalone EXE
+        shell: powershell
+        continue-on-error: true
+        run: |
+          Install-Module ps2exe -Scope CurrentUser -Force -AllowClobber
+          Invoke-PS2EXE .\src\JevRouter.ps1 .\build\JevRouter\src\JevRouter.exe -noConsole -title 'Jev Router for Windows' -product 'Jev Router for Windows' -version '0.1.0.0'
+          Compress-Archive -Path build\JevRouter -DestinationPath JevRouter-Windows-Portable.zip -Force
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JevRouter-Windows-Portable
+          path: JevRouter-Windows-Portable.zip
+          retention-days: 30
+
+      - name: Resolve release channel
+        id: meta
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "title=Jev Router for Windows ${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "rolling=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+            echo "title=Jev Router for Windows — Latest Alpha" >> "$GITHUB_OUTPUT"
+            echo "rolling=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Move rolling latest tag
+        if: steps.meta.outputs.rolling == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f latest "$GITHUB_SHA"
+          git push origin refs/tags/latest --force
+
+      - name: Publish release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.meta.outputs.tag }}
+          RELEASE_TITLE: ${{ steps.meta.outputs.title }}
+        run: |
+          $notes = @"
+          Graphical Windows alpha for setting up TypeSafe Jev routing.
+
+          - Codex: automatic routing through jev-codex-bridge.
+          - Claude Code Desktop: guided Jev Model Router plugin integration.
+          - TypeSafe API key verification and Windows DPAPI local storage.
+          - No terminal interaction required for the normal GUI path.
+
+          Extract the ZIP and run START_JEV_ROUTER.bat, or JevRouter.exe when present.
+
+          This is an unsigned alpha build. Review SECURITY.md and THIRD_PARTY_NOTICES.md before using it with sensitive repositories.
+          "@
+
+          gh release view $env:RELEASE_TAG *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:RELEASE_TAG JevRouter-Windows-Portable.zip --clobber
+            gh release edit $env:RELEASE_TAG --title $env:RELEASE_TITLE --notes $notes --prerelease
+          }
+          else {
+            gh release create $env:RELEASE_TAG JevRouter-Windows-Portable.zip --title $env:RELEASE_TITLE --notes $notes --prerelease --target $env:GITHUB_SHA
+          }
