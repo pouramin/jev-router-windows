@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f4f8ff" />
+  <meta name="description" content="ارائه‌ی تصویری فارسی درباره JEV، مدل‌های System One شرکت TypeSafe، مسیریابی مدل و جایگاه JEV در Agentهای هوش مصنوعی." />
+  <title>مدل JEV چیست؟ — ارائه تصویری</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="./rtl.css" />
+</head>
+<body>
+  <main class="deck-shell">
+    <section class="deck" id="deck" aria-label="ارائه تصویری JEV">
+      <a class="language-switch" href="../" lang="en" dir="ltr" aria-label="English version">English</a>
+      <div class="ambient ambient-a"></div>
+      <div class="ambient ambient-b"></div>
+
+      <aside class="control-rail" aria-label="کنترل‌های ارائه">
+        <button class="rail-btn" id="prev" title="اسلاید قبلی" aria-label="اسلاید قبلی">↑</button>
+        <div class="rail-count" id="counter">01<span>/06</span></div>
+        <button class="rail-btn rail-btn-primary" id="play" title="پخش خودکار" aria-label="پخش خودکار">▶</button>
+        <button class="rail-btn" id="next" title="اسلاید بعدی" aria-label="اسلاید بعدی">↓</button>
+        <span class="rail-separator"></span>
+        <button class="rail-btn" id="notesButton" title="یادداشت ارائه" aria-label="یادداشت ارائه">N</button>
+        <button class="rail-btn" id="fullscreen" title="تمام‌صفحه" aria-label="تمام‌صفحه">⛶</button>
+      </aside>
+
+      <div class="progress-rail" id="progressRail" aria-label="پیشرفت اسلایدها"></div>
+      <div class="slide-host" id="slideHost" aria-live="polite"></div>
+      <aside class="notes-panel" id="notesPanel" aria-hidden="true"></aside>
+      <div class="keyboard-hint" dir="ltr"><kbd>←</kbd><kbd>→</kbd> Navigate <span>·</span> <kbd>F</kbd> Fullscreen <span>·</span> <kbd>N</kbd> Notes</div>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
