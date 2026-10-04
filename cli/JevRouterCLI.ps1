@@ -130,7 +130,16 @@ function Setup-Claude {
     Write-Host '  3. Paste the copied marketplace and add Jev Model Router.' -ForegroundColor Gray
     Write-Host '  4. Restart the Code session.' -ForegroundColor Gray
     Write-Host ''
-    Write-Host 'After the plugin is added, it is available in Claude Code sessions signed in with the same Claude account.' -ForegroundColor Green
+    Read-Host 'After you add the plugin in Claude, press Enter here to verify it' | Out-Null
+
+    $status = Get-SystemStatus
+    if ($status.ClaudePlugin) {
+        Write-Host 'Claude is configured. The plugin is now detected locally.' -ForegroundColor Green
+        Write-Host 'It will be available in Claude Code sessions using this Claude account.' -ForegroundColor Green
+    } else {
+        Write-Host 'The plugin is not detected yet.' -ForegroundColor Yellow
+        Write-Host 'You can finish the install later from Claude > Customize > Plugins. The TypeSafe key preparation is already saved.' -ForegroundColor Gray
+    }
 }
 
 function Reset-Codex {
