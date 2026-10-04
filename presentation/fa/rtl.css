@@ -1,0 +1,120 @@
+html, body {
+  direction: rtl;
+  font-family: "Vazirmatn", Tahoma, "Segoe UI", sans-serif;
+}
+
+.control-rail {
+  right: 18px;
+  left: auto;
+}
+
+.progress-rail {
+  right: 74px;
+  left: auto;
+}
+
+.slide {
+  padding: 36px 104px 34px 44px;
+  direction: rtl;
+  text-align: right;
+}
+
+.slide-header {
+  direction: rtl;
+}
+
+.kicker {
+  grid-column: 3;
+  justify-self: end;
+  text-align: right;
+}
+
+.slide-title {
+  grid-column: 2;
+  text-align: center;
+}
+
+.corner-label {
+  grid-column: 1;
+  justify-self: start;
+  text-align: left;
+}
+
+.card,
+.tier-card,
+.comparison-box,
+.list-card {
+  text-align: right;
+}
+
+.flow-node {
+  text-align: center;
+}
+
+.feature-row {
+  direction: rtl;
+}
+
+.code,
+.ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.ltr {
+  display: inline-block;
+}
+
+.code {
+  text-align: left;
+}
+
+.notes-panel {
+  left: 18px;
+  right: auto;
+  top: 56px;
+  direction: rtl;
+  text-align: right;
+}
+
+.notes-panel::before {
+  content: "یادداشت ارائه";
+  letter-spacing: 0;
+  font-family: "Vazirmatn", Tahoma, sans-serif;
+}
+
+.keyboard-hint {
+  left: 18px;
+  right: auto;
+}
+
+.language-switch {
+  left: 18px;
+  right: auto;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  direction: ltr;
+}
+
+.pill-row,
+.comparison,
+.flow-grid,
+.tier-grid {
+  direction: rtl;
+}
+
+@media (max-width: 1000px), (max-height: 650px) {
+  .slide { padding: 28px 78px 54px 26px; }
+  .progress-rail { right: 61px; left: auto; }
+  .control-rail { right: 10px; left: auto; }
+  .slide-title { grid-column: 1; }
+}
+
+@media (max-width: 700px) {
+  .slide { padding: 24px 68px 70px 18px; }
+  .control-rail {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .language-switch { left: 12px; }
+}
