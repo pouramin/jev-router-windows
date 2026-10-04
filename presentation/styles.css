@@ -428,3 +428,27 @@ kbd {
   .rail-separator { width: 1px; height: 26px; }
   .notes-panel { width: calc(100% - 36px); }
 }
+
+.language-switch {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(7,22,47,.10);
+  background: rgba(255,255,255,.86);
+  box-shadow: 0 8px 24px rgba(7,22,47,.08);
+  color: #345173;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 850;
+  backdrop-filter: blur(14px);
+  transition: transform .16s ease, background .16s ease, color .16s ease;
+}
+.language-switch:hover { transform: translateY(-1px); background: #fff; color: var(--blue); }
