@@ -84,6 +84,32 @@ function Remove-SavedTypeSafeKey {
     if (Test-Path $script:SecretFile) { Remove-Item $script:SecretFile -Force }
 }
 
+
+function Get-JevRouterPaths {
+    return [pscustomobject]@{
+        AppDataDir = $script:AppDataDir
+        SecretFile = $script:SecretFile
+        LogFile = $script:LogFile
+        BridgeEnvFile = $script:BridgeEnvFile
+    }
+}
+
+function Remove-CodexBridgeKeyFile {
+    if (-not (Test-Path $script:BridgeEnvFile)) { return }
+
+    $remaining = Get-Content $script:BridgeEnvFile -ErrorAction SilentlyContinue |
+        Where-Object { $_ -notmatch '^\s*(TYPESAFE_API_KEY|JEV_API_KEY|JEV_ROUTER_TYPESAFE_API_KEY)\s*=' }
+
+    if (@($remaining).Count -eq 0) {
+        Remove-Item $script:BridgeEnvFile -Force -ErrorAction SilentlyContinue
+    } else {
+        Set-Content -Path $script:BridgeEnvFile -Value $remaining -Encoding UTF8
+        Set-RestrictedFileAcl -Path $script:BridgeEnvFile
+    }
+
+    Write-JevRouterLog 'Removed Jev/TypeSafe keys from the Codex bridge environment file.'
+}
+
 function Test-TypeSafeApiKey {
     param([Parameter(Mandatory)][string]$ApiKey)
     try {
@@ -332,7 +358,8 @@ function Remove-CodexBridge {
             if ($output) { $log.Add($output) }
         } catch { $log.Add("Warning: $($_.Exception.Message)") }
     }
-    Write-JevRouterLog 'Codex bridge removal finished.'
+    Remove-CodexBridgeKeyFile
+    Write-JevRouterLog 'Codex bridge removal finished and Codex configuration was restored where a bridge backup was available.'
     return $log
 }
 
@@ -350,8 +377,42 @@ function Prepare-ClaudeIntegration {
 }
 
 function Remove-ClaudeIntegration {
-    [Environment]::SetEnvironmentVariable('TYPESAFE_API_KEY', $null, 'User')
-    Write-JevRouterLog 'Removed TYPESAFE_API_KEY from user environment. Plugin removal remains inside Claude Customize > Plugins.'
+    foreach ($name in @('TYPESAFE_API_KEY','JEV_API_KEY','JEV_ROUTER_TYPESAFE_API_KEY')) {
+        [Environment]::SetEnvironmentVariable($name, $null, 'User')
+        Remove-Item ("Env:" + $name) -ErrorAction SilentlyContinue
+    }
+    Write-JevRouterLog 'Removed Jev/TypeSafe environment keys used by the Claude integration. Account-level plugin removal remains inside Claude Customize > Plugins.'
+}
+
+function Reset-JevRouterAll {
+    $log = New-Object System.Collections.Generic.List[string]
+
+    try {
+        foreach ($line in (Remove-CodexBridge)) {
+            if ($line) { $log.Add([string]$line) }
+        }
+        $log.Add('Codex routing was returned to its pre-bridge configuration where a backup was available.')
+    } catch {
+        $log.Add("Codex reset warning: $($_.Exception.Message)")
+        try { Remove-CodexBridgeKeyFile } catch { }
+    }
+
+    try {
+        Remove-ClaudeIntegration
+        $log.Add('Claude Jev environment keys were removed.')
+    } catch {
+        $log.Add("Claude reset warning: $($_.Exception.Message)")
+    }
+
+    try {
+        Remove-SavedTypeSafeKey
+        $log.Add('The DPAPI-protected TypeSafe key saved by Jev Router was removed.')
+    } catch {
+        $log.Add("Saved-key reset warning: $($_.Exception.Message)")
+    }
+
+    Write-JevRouterLog 'Full Jev Router reset finished.'
+    return $log
 }
 
 function Get-CodexBridgeStatusText {
