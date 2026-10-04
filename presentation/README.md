@@ -1,24 +1,31 @@
-# What Is JEV? — Browser Presentation
+# JEV Visual Deck
 
-A browser-playable visual deck explaining JEV, System One decision models, model routing, structured outputs, and where JEV fits in AI agents.
+Browser-playable presentation for the JEV explainer video.
 
-## Open
+## Stack
 
-Open `presentation/index.html` in a browser, or use the public short link once deployed from `pouramin.dev`.
+- HTML
+- CSS
+- TypeScript
+- Inline SVG icons
+- No runtime framework or external CDN required
+
+## Build
+
+```bash
+cd presentation
+npm install
+npm run build
+```
+
+The TypeScript source is `app.ts` and the browser loads the compiled `app.js`.
 
 ## Controls
 
-- `←` / `→` — previous / next slide
-- `Space` — next slide
-- `P` — play / pause auto-advance
-- `F` — fullscreen
-- `N` — speaker notes
+- Arrow keys / Page Up / Page Down: navigate
+- Space: next slide
+- P: autoplay
+- F: fullscreen
+- N: speaker notes
 
-## Slides
-
-1. What Is JEV?
-2. Where Did the Idea Come From?
-3. How JEV Works
-4. What Kind of Answers Does JEV Return?
-5. Why Teams Use JEV
-6. Where JEV Fits
+The compact controls are intentionally vertical on the left so they never cover slide content.
