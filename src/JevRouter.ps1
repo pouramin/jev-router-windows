@@ -293,7 +293,7 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
    <Border Grid.Row="3" Background="#0C121B" BorderBrush="#1F2C3D" BorderThickness="1"
            CornerRadius="12" Padding="12,10" Margin="0,16,0,0">
     <Grid>
-     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
       <Border Background="#121D2A" CornerRadius="8" Padding="9,5" Margin="0,0,7,0">
        <TextBlock Text="SYSTEM" Foreground="{StaticResource Muted2}" FontSize="9.5" FontWeight="Bold"/>
@@ -302,6 +302,9 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
      </StackPanel>
      <TextBlock Grid.Column="1" Text="Alpha - community integration" Foreground="#52637A" FontSize="9.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
      <Button x:Name="RefreshButton" Grid.Column="2" Content="Refresh status" Height="34" Padding="12,6" Style="{StaticResource SecondaryButton}" FontSize="10.5"/>
+     <Button x:Name="ResetButton" Grid.Column="4" Content="Reset JEV" Height="34" Padding="12,6"
+             Background="#2A171A" Foreground="#FFB4B4" BorderBrush="#60333B" BorderThickness="1"
+             FontWeight="SemiBold" Cursor="Hand" ToolTip="Restore Codex defaults and remove TypeSafe/Jev credentials saved by this app."/>
     </Grid>
    </Border>
   </Grid>
@@ -321,7 +324,7 @@ $CodexDetection=C 'CodexDetection'; $CodexBridgeStatus=C 'CodexBridgeStatus'
 $ClaudeDetection=C 'ClaudeDetection'; $ClaudePluginStatus=C 'ClaudePluginStatus'
 $ConnectCodexButton=C 'ConnectCodexButton'; $DisconnectCodexButton=C 'DisconnectCodexButton'
 $PrepareClaudeButton=C 'PrepareClaudeButton'; $OpenClaudeButton=C 'OpenClaudeButton'
-$RefreshButton=C 'RefreshButton'; $FooterStatus=C 'FooterStatus'; $ClaudeInstructions=C 'ClaudeInstructions'
+$RefreshButton=C 'RefreshButton'; $ResetButton=C 'ResetButton'; $FooterStatus=C 'FooterStatus'; $ClaudeInstructions=C 'ClaudeInstructions'
 
 $script:Busy=$false
 $script:ActiveJob=$null
@@ -329,7 +332,7 @@ $script:Timer=New-Object Windows.Threading.DispatcherTimer
 $script:Timer.Interval=[TimeSpan]::FromMilliseconds(400)
 
 function Busy([bool]$Value,[string]$Message='Working...') {
- foreach($x in @($VerifyButton,$ConnectCodexButton,$DisconnectCodexButton,$PrepareClaudeButton,$RefreshButton)){ $x.IsEnabled=-not $Value }
+ foreach($x in @($VerifyButton,$ConnectCodexButton,$DisconnectCodexButton,$PrepareClaudeButton,$RefreshButton,$ResetButton)){ $x.IsEnabled=-not $Value }
  $script:Busy=$Value; $GlobalStatus.Text=$(if($Value){$Message}else{'Ready'}); $GlobalDot.Fill=B $(if($Value){'#F0C35A'}else{'#92A0B5'})
 }
 
@@ -358,7 +361,13 @@ function Background([string]$Action) {
    if($Name -eq 'Connect Codex'){
     $key=Get-SavedTypeSafeKey; if(-not $key){throw 'Save a valid TypeSafe key first.'}
     $r=Install-CodexBridge -ApiKey $key
-   } else { $r=Remove-CodexBridge }
+   } elseif($Name -eq 'Disconnect Codex'){
+    $r=Remove-CodexBridge
+   } elseif($Name -eq 'Reset All'){
+    $r=Reset-JevRouterAll
+   } else {
+    throw "Unknown action: $Name"
+   }
    [pscustomobject]@{Success=$true;Action=$Name;Text=($r -join [Environment]::NewLine)}
   } catch { [pscustomobject]@{Success=$false;Action=$Name;Text=$_.Exception.Message} }
  }
@@ -371,6 +380,7 @@ $script:Timer.Add_Tick({
  Remove-Job $script:ActiveJob -Force -ErrorAction SilentlyContinue; $script:ActiveJob=$null; $script:Timer.Stop(); Busy $false; Refresh-Ui
  if($r -and -not $r.Success){Err $r.Text}
  elseif($r -and $r.Action -eq 'Connect Codex'){[Windows.MessageBox]::Show($window,"Codex is configured. Restart Codex Desktop, then choose 'Jev Router' from its model picker.",'Codex connected','OK','Information')|Out-Null}
+ elseif($r -and $r.Action -eq 'Reset All'){[Windows.MessageBox]::Show($window,"Jev Router data was reset. Codex was restored where a bridge backup was available, and Jev/TypeSafe credentials saved by this app were removed. If you added the Claude plugin to your Claude account, remove it from Customize > Plugins if you also want the plugin itself gone.",'JEV reset complete','OK','Information')|Out-Null}
 })
 
 $VerifyButton.Add_Click({
@@ -387,6 +397,10 @@ $ConnectCodexButton.Add_Click({
  if([Windows.MessageBox]::Show($window,$q,'Connect Codex','YesNo','Question') -eq 'Yes'){Background 'Connect Codex'}
 })
 $DisconnectCodexButton.Add_Click({if([Windows.MessageBox]::Show($window,'Restore Codex configuration and remove Jev Codex Bridge?','Disconnect Codex','YesNo','Question') -eq 'Yes'){Background 'Disconnect Codex'}})
+$ResetButton.Add_Click({
+ $msg='Reset everything configured by Jev Router? This restores Codex from the bridge backup when available, removes the Codex bridge, removes Jev/TypeSafe environment keys used for Claude, deletes the protected TypeSafe key saved by this app, and removes Jev keys from the bridge environment file. The Claude account plugin itself must still be removed from Customize > Plugins if you added it there.'
+ if([Windows.MessageBox]::Show($window,$msg,'Reset JEV','YesNo','Warning') -eq 'Yes'){Background 'Reset All'}
+})
 $PrepareClaudeButton.Add_Click({
  $key=Get-SavedTypeSafeKey;if(-not $key){Err 'Verify and save your TypeSafe API key first.';return}
  try{$r=Prepare-ClaudeIntegration -ApiKey $key;$ClaudeInstructions.Text='Marketplace copied: '+$r.Marketplace+[Environment]::NewLine+[Environment]::NewLine+'In Claude: Customize > Plugins > Add > Add marketplace > paste > install Jev Model Router.';$FooterStatus.Text='Claude opened and marketplace copied.'}catch{Err $_.Exception.Message}
