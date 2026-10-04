@@ -32,6 +32,52 @@
 
 برای استفاده‌ی عادی نیازی به باز کردن Terminal نیست. اگر پیش‌نیازهای بخش Codex روی سیستم نباشن، برنامه بعد از تایید کاربر می‌تونه اون‌ها رو در پس‌زمینه با `WinGet` نصب کنه.
 
+## نسخه‌ی CLI
+
+همین راه‌اندازی به‌صورت تعاملی داخل PowerShell هم وجود داره. در اجرای اول، کلید `TypeSafe API key` با ورودی مخفی گرفته می‌شه، اعتبارش بررسی می‌شه، بعد با `Windows DPAPI` برای Windows user فعلی ذخیره می‌شه و برنامه می‌پرسه تنظیمات برای کدوم محیط انجام بشه.
+
+برای نصب یک‌خطی:
+
+</div>
+
+```powershell
+irm https://raw.githubusercontent.com/pouramin/jev-router-windows/main/install.ps1 | iex
+```
+
+<div dir="rtl" align="right">
+
+بعد از نصب، یک PowerShell جدید باز کن و این دستور رو اجرا کن:
+
+</div>
+
+```powershell
+jev-router
+```
+
+<div dir="rtl" align="right">
+
+منوی CLI این گزینه‌ها رو داره:
+
+</div>
+
+```text
+1 - ChatGPT / Codex Desktop (Codex routing)
+2 - Claude / Claude Code
+3 - Both
+4 - Change TypeSafe API key
+5 - Refresh status
+6 - Reset Codex
+7 - Reset Claude
+8 - Reset everything
+0 - Exit
+```
+
+<div dir="rtl" align="right">
+
+برای Codex، نسخه‌ی CLI همون Bridge و تنظیمات دائمی Windows رو انجام می‌ده؛ بنابراین وقتی بعداً Codex Desktop رو باز کنی، تنظیمات Jev همچنان فعاله.
+
+برای Claude، نسخه‌ی CLI متغیر مربوط به کلید رو آماده می‌کنه، Claude Desktop رو باز می‌کنه، Marketplace رو داخل Clipboard می‌ذاره و منتظر می‌مونه تا **Jev Model Router** رو از مسیر **Customize → Plugins** اضافه کنی. خود Claude برای Plugin حساب کاربری این تایید داخل برنامه رو اجباری کرده. بعد از اضافه‌شدن، Plugin در Claude Code sessionهای همون Claude account هم قابل استفاده‌ست.
+
 ## اتصال Codex
 
 مسیر Codex در نسخه‌ی فعلی بیشترین میزان اتوماسیون رو داره.
@@ -65,6 +111,16 @@
 **Customize → Plugins → Add → Add marketplace → paste → install Jev Model Router**
 
 این بخش عمداً با برچسب `PLUGIN` نمایش داده می‌شه. در نسخه‌ی فعلی، `Jev Model Router` برای پیشنهاد و Delegation مدل استفاده می‌شه؛ این پروژه ادعا نمی‌کنه که Claude Desktop مثل Codex برای هر Turn به‌صورت Transparent پشت یک Proxy قرار گرفته.
+
+## ریست و برگشت به حالت پیش‌فرض
+
+هم نسخه‌ی گرافیکی و هم نسخه‌ی CLI گزینه‌های Reset دارن.
+
+- گزینه‌ی **Reset Codex** تنظیمات Codex رو در صورت وجود Backup به حالت قبل برمی‌گردونه، Bridge و Background Service رو حذف می‌کنه و کلیدهای Jev/TypeSafe رو از فایل Bridge پاک می‌کنه.
+- گزینه‌ی **Reset Claude** متغیرهای Jev/TypeSafe ساخته‌شده توسط این پروژه رو از Windows user پاک می‌کنه.
+- گزینه‌ی **Reset everything** علاوه بر این‌ها، کلید محافظت‌شده‌ی TypeSafe که Jev Router با DPAPI ذخیره کرده رو هم حذف می‌کنه.
+
+Pluginهای Claude در سطح Claude account ذخیره می‌شن. اگر **Jev Model Router** رو به حساب Claude اضافه کرده باشی و بخوای خود Plugin هم کاملاً حذف بشه، از مسیر **Customize → Plugins** گزینه‌ی Remove رو بزن.
 
 ## نگهداری TypeSafe API key
 
