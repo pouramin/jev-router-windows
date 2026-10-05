@@ -41,6 +41,7 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
  Title="Jev Router for Windows"
  Width="1120" Height="760" MinWidth="900" MinHeight="680"
  WindowStartupLocation="CenterScreen"
+ WindowState="Maximized"
  Background="#080B11" Foreground="#F4F7FB"
  FontFamily="Segoe UI"
  SnapsToDevicePixels="True">
@@ -97,6 +98,18 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
    <Setter Property="Background" Value="#172131"/>
    <Setter Property="BorderBrush" Value="#304158"/>
    <Setter Property="Foreground" Value="#D7E0EB"/>
+  </Style>
+
+  <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+   <Setter Property="Background" Value="#2A171A"/>
+   <Setter Property="BorderBrush" Value="#60333B"/>
+   <Setter Property="Foreground" Value="#FFB4B4"/>
+  </Style>
+
+  <Style x:Key="SocialButton" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+   <Setter Property="Height" Value="34"/>
+   <Setter Property="Padding" Value="10,6"/>
+   <Setter Property="MinWidth" Value="38"/>
   </Style>
 
   <Style TargetType="PasswordBox">
@@ -183,8 +196,7 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
       <Button x:Name="VerifyButton" Grid.Column="2" Content="Verify &amp; save" MinWidth="132" Height="42"
               Style="{StaticResource PrimaryButton}"/>
       <Button x:Name="ClearKeyButton" Grid.Column="4" Content="Clear saved key" MinWidth="118" Height="42"
-              Background="#2A171A" Foreground="#FFB4B4" BorderBrush="#60333B" BorderThickness="1"
-              FontWeight="SemiBold" Cursor="Hand"/>
+              Style="{StaticResource DangerButton}"/>
      </Grid>
     </Grid>
    </Border>
@@ -238,9 +250,13 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
       </Border>
 
       <Grid Grid.Row="3" Margin="0,18,0,0">
-       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-       <Button x:Name="ConnectCodexButton" Content="Connect Codex" Height="42" Style="{StaticResource GreenButton}"/>
-       <Button x:Name="DisconnectCodexButton" Grid.Column="2" Content="Disconnect" Height="42" MinWidth="102" Style="{StaticResource SecondaryButton}"/>
+       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="8"/>
+        <ColumnDefinition Width="Auto"/>
+       </Grid.ColumnDefinitions>
+       <Button x:Name="CodexToggleButton" Content="Connect Codex" Height="42" Style="{StaticResource GreenButton}"/>
+       <Button x:Name="OpenCodexButton" Grid.Column="2" Content="Open Codex" Height="42" MinWidth="104" Style="{StaticResource SecondaryButton}"/>
       </Grid>
      </Grid>
     </Border>
@@ -299,12 +315,9 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="8"/>
         <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="8"/>
-        <ColumnDefinition Width="Auto"/>
        </Grid.ColumnDefinitions>
-       <Button x:Name="PrepareClaudeButton" Content="Connect Claude" Height="42" Style="{StaticResource BlueButton}"/>
-       <Button x:Name="DisconnectClaudeButton" Grid.Column="2" Content="Disconnect" Height="42" MinWidth="94" Style="{StaticResource SecondaryButton}"/>
-       <Button x:Name="OpenClaudeButton" Grid.Column="4" Content="Open Claude" Height="42" MinWidth="94" Style="{StaticResource SecondaryButton}"/>
+       <Button x:Name="ClaudeToggleButton" Content="Connect Claude" Height="42" Style="{StaticResource BlueButton}"/>
+       <Button x:Name="OpenClaudeButton" Grid.Column="2" Content="Open Claude" Height="42" MinWidth="104" Style="{StaticResource SecondaryButton}"/>
       </Grid>
      </Grid>
     </Border>
@@ -321,11 +334,36 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
       </Border>
       <TextBlock x:Name="FooterStatus" Text="Checking Windows prerequisites..." Foreground="{StaticResource Muted}" FontSize="10.5" VerticalAlignment="Center"/>
      </StackPanel>
-     <TextBlock Grid.Column="1" Text="Alpha - community integration" Foreground="#52637A" FontSize="9.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Button x:Name="YouTubeButton" Style="{StaticResource SocialButton}" ToolTip="TunnelLab on YouTube">
+       <StackPanel Orientation="Horizontal">
+        <Viewbox Width="20" Height="15" Margin="0,0,7,0">
+         <Path Fill="#FF3355" Data="M23.5,6.2 A3,3 0 0 0 21.4,4.1 C19.5,3.6 12,3.6 12,3.6 C12,3.6 4.5,3.6 2.6,4.1 A3,3 0 0 0 .5,6.2 A31,31 0 0 0 0,12 A31,31 0 0 0 .5,17.8 A3,3 0 0 0 2.6,19.9 C4.5,20.4 12,20.4 12,20.4 C12,20.4 19.5,20.4 21.4,19.9 A3,3 0 0 0 23.5,17.8 A31,31 0 0 0 24,12 A31,31 0 0 0 23.5,6.2 Z M9.6,15.6 L9.6,8.4 L15.8,12 Z"/>
+        </Viewbox>
+        <TextBlock Text="YouTube" VerticalAlignment="Center"/>
+       </StackPanel>
+      </Button>
+      <Button x:Name="GitHubButton" Style="{StaticResource SocialButton}" Margin="7,0,0,0" ToolTip="GitHub">
+       <StackPanel Orientation="Horizontal">
+        <Viewbox Width="17" Height="17" Margin="0,0,7,0">
+         <Path Fill="#D7E0EB" Data="M12,.7 A11.5,11.5 0 0 0 8.36,23.11 C8.94,23.21 9.15,22.86 9.15,22.55 L9.15,20.39 C5.92,21.09 5.24,19.02 5.24,19.02 C4.71,17.68 3.95,17.32 3.95,17.32 C2.9,16.6 4.03,16.62 4.03,16.62 C5.19,16.7 5.81,17.82 5.81,17.82 C6.85,19.59 8.53,19.08 9.2,18.78 C9.3,18.03 9.6,17.52 9.94,17.23 C7.36,16.94 4.64,15.94 4.64,11.48 C4.64,10.21 5.1,9.17 5.84,8.35 C5.72,8.05 5.32,6.87 5.96,5.26 C5.96,5.26 6.94,4.95 9.12,6.46 A10.9,10.9 0 0 1 14.87,6.46 C17.05,4.95 18.03,5.26 18.03,5.26 C18.67,6.87 18.27,8.06 18.15,8.35 C18.9,9.17 19.35,10.21 19.35,11.48 C19.35,15.95 16.63,16.93 14.04,17.22 C14.46,17.58 14.83,18.29 14.83,19.38 L14.83,22.55 C14.83,22.86 15.04,23.22 15.63,23.11 A11.5,11.5 0 0 0 12,.7 Z"/>
+        </Viewbox>
+        <TextBlock Text="GitHub" VerticalAlignment="Center"/>
+       </StackPanel>
+      </Button>
+      <Button x:Name="WebsiteButton" Style="{StaticResource SocialButton}" Margin="7,0,0,0" ToolTip="pouramin.dev">
+       <StackPanel Orientation="Horizontal">
+        <Border Width="20" Height="20" CornerRadius="5" Background="#5749E8" Margin="0,0,7,0">
+         <TextBlock Text="AP" Foreground="White" FontSize="7.5" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+        <TextBlock Text="Website" VerticalAlignment="Center"/>
+       </StackPanel>
+      </Button>
+     </StackPanel>
      <Button x:Name="RefreshButton" Grid.Column="2" Content="Refresh status" Height="34" Padding="12,6" Style="{StaticResource SecondaryButton}" FontSize="10.5"/>
      <Button x:Name="ResetButton" Grid.Column="4" Content="Reset JEV" Height="34" Padding="12,6"
-             Background="#2A171A" Foreground="#FFB4B4" BorderBrush="#60333B" BorderThickness="1"
-             FontWeight="SemiBold" Cursor="Hand" ToolTip="Restore Codex defaults and remove TypeSafe/Jev credentials saved by this app."/>
+             Style="{StaticResource DangerButton}" FontSize="10.5"
+             ToolTip="Restore Codex defaults and remove TypeSafe/Jev credentials saved by this app."/>
     </Grid>
    </Border>
   </Grid>
@@ -343,8 +381,9 @@ $ApiKeyBox=C 'ApiKeyBox'; $VerifyButton=C 'VerifyButton'; $ClearKeyButton=C 'Cle
 $GlobalDot=C 'GlobalDot'; $GlobalStatus=C 'GlobalStatus'
 $CodexDetection=C 'CodexDetection'; $CodexBridgeStatus=C 'CodexBridgeStatus'
 $ClaudeDetection=C 'ClaudeDetection'; $ClaudePluginStatus=C 'ClaudePluginStatus'
-$ConnectCodexButton=C 'ConnectCodexButton'; $DisconnectCodexButton=C 'DisconnectCodexButton'
-$PrepareClaudeButton=C 'PrepareClaudeButton'; $DisconnectClaudeButton=C 'DisconnectClaudeButton'; $OpenClaudeButton=C 'OpenClaudeButton'
+$CodexToggleButton=C 'CodexToggleButton'; $OpenCodexButton=C 'OpenCodexButton'
+$ClaudeToggleButton=C 'ClaudeToggleButton'; $OpenClaudeButton=C 'OpenClaudeButton'
+$YouTubeButton=C 'YouTubeButton'; $GitHubButton=C 'GitHubButton'; $WebsiteButton=C 'WebsiteButton'
 $RefreshButton=C 'RefreshButton'; $ResetButton=C 'ResetButton'; $FooterStatus=C 'FooterStatus'; $ClaudeInstructions=C 'ClaudeInstructions'
 
 $script:Busy=$false
@@ -354,7 +393,7 @@ $script:Timer=New-Object Windows.Threading.DispatcherTimer
 $script:Timer.Interval=[TimeSpan]::FromMilliseconds(400)
 
 function Busy([bool]$Value,[string]$Message='Working...') {
- foreach($x in @($VerifyButton,$ClearKeyButton,$ConnectCodexButton,$DisconnectCodexButton,$PrepareClaudeButton,$DisconnectClaudeButton,$OpenClaudeButton,$RefreshButton,$ResetButton)){ $x.IsEnabled=-not $Value }
+ foreach($x in @($VerifyButton,$ClearKeyButton,$CodexToggleButton,$OpenCodexButton,$ClaudeToggleButton,$OpenClaudeButton,$YouTubeButton,$GitHubButton,$WebsiteButton,$RefreshButton,$ResetButton)){ $x.IsEnabled=-not $Value }
  $script:Busy=$Value; $GlobalStatus.Text=$(if($Value){$Message}else{'Ready'}); $GlobalDot.Fill=B $(if($Value){'#F0C35A'}else{'#92A0B5'})
 }
 
@@ -369,6 +408,15 @@ function Refresh-Ui {
   $CodexBridgeStatus.Foreground=B $(if($s.CodexBridge){'#64D6A6'}else{'#92A0B5'})
   $ClaudeDetection.Foreground=B $(if($s.ClaudeDesktop){'#64D6A6'}else{'#92A0B5'})
   $ClaudePluginStatus.Foreground=B $(if($s.ClaudePlugin){'#64D6A6'}else{'#92A0B5'})
+
+  $script:CodexConnected=[bool]$s.CodexBridge
+  $CodexToggleButton.Content=$(if($script:CodexConnected){'Disconnect Codex'}else{'Connect Codex'})
+  $CodexToggleButton.Style=$window.FindResource($(if($script:CodexConnected){'SecondaryButton'}else{'GreenButton'}))
+
+  $script:ClaudeConnected=[bool]$s.ClaudePlugin
+  $ClaudeToggleButton.Content=$(if($script:ClaudeConnected){'Disconnect Claude'}else{'Connect Claude'})
+  $ClaudeToggleButton.Style=$window.FindResource($(if($script:ClaudeConnected){'SecondaryButton'}else{'BlueButton'}))
+
   if($s.KeySaved){ $KeyStatus.Text='Saved locally'; $KeyStatus.Foreground=B '#64D6A6' } else { $KeyStatus.Text='Not connected'; $KeyStatus.Foreground=B '#92A0B5' }
   $git=$(if($s.Git){'ready'}else{'missing'}); $wg=$(if($s.Winget){'ready'}else{'missing'})
   $FooterStatus.Text='Node '+$s.NodeMajor+' | Git '+$git+' | WinGet '+$wg
@@ -497,26 +545,47 @@ $ClearKeyButton.Add_Click({
  }catch{Err $_.Exception.Message}
 })
 
-$ConnectCodexButton.Add_Click({
+$CodexToggleButton.Add_Click({
+ if($script:CodexConnected){
+  $q='Remove Jev Router from Codex, restore the previous model selection where possible, and remove the bridge service/package?'
+  if([Windows.MessageBox]::Show($window,$q,'Disconnect Codex','YesNo','Question') -eq 'Yes'){Background 'Disconnect Codex'}
+  return
+ }
+
  if(-not(Get-SavedTypeSafeKey)){Err 'Verify and save your TypeSafe API key first.';return}
  $q='This can install Git and Node.js with WinGet, install jev-codex-bridge, back up Codex configuration, and add a user-level background task. Continue?'
  if([Windows.MessageBox]::Show($window,$q,'Connect Codex','YesNo','Question') -eq 'Yes'){Background 'Connect Codex'}
 })
-$DisconnectCodexButton.Add_Click({if([Windows.MessageBox]::Show($window,'Remove Jev Router from Codex, restore the previous model selection where possible, and remove the bridge service/package?','Disconnect Codex','YesNo','Question') -eq 'Yes'){Background 'Disconnect Codex'}})
-$ResetButton.Add_Click({
- $msg='Reset everything configured by Jev Router? This restores Codex from the bridge backup when available, removes the Codex bridge, removes the Claude Jev plugin where possible, clears Jev/TypeSafe environment keys, deletes the protected TypeSafe key saved by this app, and removes Jev keys from the bridge environment file.'
- if([Windows.MessageBox]::Show($window,$msg,'Reset JEV','YesNo','Warning') -eq 'Yes'){Background 'Reset All'}
-})
-$PrepareClaudeButton.Add_Click({
+
+$ClaudeToggleButton.Add_Click({
+ if($script:ClaudeConnected){
+  $q='Remove Jev Model Router from Claude Code, remove its marketplace entry where possible, and clear Jev/TypeSafe environment keys created for Claude?'
+  if([Windows.MessageBox]::Show($window,$q,'Disconnect Claude','YesNo','Question') -eq 'Yes'){Background 'Disconnect Claude'}
+  return
+ }
+
  if(-not(Get-SavedTypeSafeKey)){Err 'Verify and save your TypeSafe API key first.';return}
  $q='This can install the official Claude Code CLI with WinGet if it is missing, add the Jev Model Router marketplace, install the plugin at user scope, and open Claude. Continue?'
  if([Windows.MessageBox]::Show($window,$q,'Connect Claude','YesNo','Question') -eq 'Yes'){Background 'Connect Claude'}
 })
-$DisconnectClaudeButton.Add_Click({
- $q='Remove Jev Model Router from Claude Code, remove its marketplace entry where possible, and clear Jev/TypeSafe environment keys created for Claude?'
- if([Windows.MessageBox]::Show($window,$q,'Disconnect Claude','YesNo','Question') -eq 'Yes'){Background 'Disconnect Claude'}
+
+$OpenCodexButton.Add_Click({
+ try{Start-Process 'codex://threads/new'}
+ catch{
+  try{Start-Process 'https://chatgpt.com/codex?app-landing-page=true'}
+  catch{Err 'Codex could not be opened.'}
+ }
 })
 $OpenClaudeButton.Add_Click({try{Start-Process 'claude://code'}catch{Err 'Claude Desktop could not be opened.'}})
+
+$YouTubeButton.Add_Click({try{Start-Process 'https://www.youtube.com/@tunnellab'}catch{Err 'YouTube could not be opened.'}})
+$GitHubButton.Add_Click({try{Start-Process 'https://github.com/pouramin'}catch{Err 'GitHub could not be opened.'}})
+$WebsiteButton.Add_Click({try{Start-Process 'https://pouramin.dev/'}catch{Err 'Website could not be opened.'}})
+
+$ResetButton.Add_Click({
+ $msg='Reset everything configured by Jev Router? This restores Codex from the bridge backup when available, removes the Codex bridge, removes the Claude Jev plugin where possible, clears Jev/TypeSafe environment keys, deletes the protected TypeSafe key saved by this app, and removes Jev keys from the bridge environment file.'
+ if([Windows.MessageBox]::Show($window,$msg,'Reset JEV','YesNo','Warning') -eq 'Yes'){Background 'Reset All'}
+})
 $RefreshButton.Add_Click({Refresh-Ui})
 $window.Add_Closed({
  $script:Timer.Stop()
