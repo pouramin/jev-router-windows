@@ -2,5 +2,5 @@
 setlocal
 cd /d "%~dp0"
 
-start "Jev Router" powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "%~dp0src\JevRouter.ps1"
+wscript.exe //B "%~dp0START_JEV_ROUTER.vbs"
 exit /b 0
