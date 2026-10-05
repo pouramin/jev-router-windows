@@ -90,9 +90,33 @@ const slides: SlideDefinition[] = [
           ${card('brain','الهام از System 1','مدل JEV از تصمیم‌گیری سریع و شهودی الهام می‌گیرد؛ همان تفکیک معروف <strong class="ltr highlight-blue">Daniel Kahneman</strong> بین <strong class="ltr highlight-gold">System 1</strong> و <strong class="ltr highlight-blue">System 2</strong>.','gold')}
           ${card('chart','چرا نام JEV؟','این نام از <strong class="ltr highlight-blue">William Stanley Jevons</strong> و <strong class="ltr highlight-gold">Jevons paradox</strong> می‌آید: وقتی بهره‌وری بیشتر می‌شود، مصرف کلی یک منبع می‌تواند افزایش پیدا کند.','green')}
         </div>
+
+        <div class="origin-lower-grid">
+          <div class="panel founder-card">
+            <div class="founder-icon">${icon('user','blue')}</div>
+            <div>
+              <span class="origin-eyebrow ltr">FOUNDER &amp; CEO</span>
+              <h2 class="ltr">Diogo Almeida</h2>
+              <p>بنیان‌گذار و مدیرعامل شرکت <strong class="ltr highlight-blue">TypeSafe</strong>؛ پژوهشگر سابق <span class="ltr">OpenAI</span> و پیش‌تر عضو <span class="ltr">Google Brain</span>.</p>
+            </div>
+          </div>
+          <div class="panel system-compare">
+            <div class="system-card system-one">
+              <span class="system-label ltr">System 1</span>
+              <h3>سریع و شهودی</h3>
+              <p>قضاوت‌های سریع، خودکار و کم‌زحمت که بدون تحلیل طولانی انجام می‌شوند.</p>
+            </div>
+            <div class="system-vs ltr">VS</div>
+            <div class="system-card system-two">
+              <span class="system-label ltr">System 2</span>
+              <h3>آهسته و تحلیلی</h3>
+              <p>استدلال آگاهانه، مرحله‌به‌مرحله و پرزحمت برای تصمیم‌های پیچیده‌تر.</p>
+            </div>
+          </div>
+        </div>
         <div class="callout">شرکت <span class="ltr highlight-blue">TypeSafe</span> مدل JEV را به‌عنوان یک مدل تصمیم‌گیری <span class="ltr highlight-gold">System One</span> برای Automation معرفی کرده است.</div>
       </div>`,
-    note: 'ایده از یک سؤال ساده شروع می‌شود: وقتی نرم‌افزار فقط تصمیم می‌خواهد، چرا باید یک مدل بزرگ متن طولانی تولید کند؟'
+    note: 'شرکت TypeSafe توسط Diogo Almeida هدایت می‌شود. ایده‌ی JEV از تفاوت System 1 سریع و شهودی با System 2 آهسته و تحلیلی الهام می‌گیرد.'
   },
   {
     kicker: 'مسیریابی<br>انتخاب<br>اجرا',
@@ -194,6 +218,61 @@ const slides: SlideDefinition[] = [
         <div class="pill-row"><span class="pill">موضوع بعدی</span><span class="pill gold">Rule-based routing</span><span class="pill ltr">Laya</span></div>
       </div>`,
     note: 'جایگاه JEV داخل Agentها و سیستم‌های Automation است؛ نه جایگزین Claude یا GPT.'
+
+  },
+  {
+    kicker: 'رایگان<br>متن‌باز<br>جایگزین‌ها',
+    corner: 'سبک ← سنگین',
+    titleHtml: '۵ جایگزین رایگان برای <span class="ltr highlight-gold">JEV</span>',
+    subtitleHtml: 'مدل‌های <span class="highlight-blue">مسیریابی و تصمیم‌گیری متن‌باز</span> با نیاز سخت‌افزاری متفاوت',
+    bodyHtml: `
+      <div class="content alt-slide">
+        <div class="callout">از گزینه‌های مناسب <strong>CPU</strong> تا Routerهای تحقیقاتی با مصرف منابع بالا.</div>
+        <div class="resource-spectrum panel">
+          <div class="spectrum-labels"><span>خیلی سبک</span><span>مصرف منابع بالا</span></div>
+          <div class="spectrum-line">
+            <span class="spectrum-stop light" style="left: 7%;"><b class="ltr">Laya</b><small class="ltr">322M–421M</small></span>
+            <span class="spectrum-stop mid" style="left: 29%;"><b class="ltr">JevK5</b><small class="ltr">4B / 9B</small></span>
+            <span class="spectrum-stop mid" style="left: 49%;"><b class="ltr">SemIf</b><small class="ltr">4B</small></span>
+            <span class="spectrum-stop heavy" style="left: 72%;"><b class="ltr">Nimble</b><small class="ltr">9B</small></span>
+            <span class="spectrum-stop max" style="left: 92%;"><b class="ltr">Open Alt</b><small class="ltr">0.6B–27B</small></span>
+          </div>
+        </div>
+        <div class="alt-grid-5">
+          <div class="card alt-card">
+            <div class="alt-head"><div>${icon('bolt','green')}</div><div><h3 class="ltr">Laya</h3><span class="resource-pill green">خیلی کم</span></div></div>
+            <p>اندازه مدل: <strong class="ltr">322M–421M</strong></p>
+            <p>اجرای منطقی: روی <span class="ltr">CPU</span> یا حدود <span class="ltr">2–3GB</span> حافظه GPU</p>
+            <p>گیت‌هاب: <a class="ltr" href="https://github.com/haddock-development/laya_new" target="_blank" rel="noopener">haddock-development/laya_new</a></p>
+          </div>
+          <div class="card alt-card">
+            <div class="alt-head"><div>${icon('route','blue')}</div><div><h3 class="ltr">JevK5</h3><span class="resource-pill blue">متوسط</span></div></div>
+            <p>اندازه مدل: <strong class="ltr">4B / 9B</strong></p>
+            <p>اجرای منطقی: روی CPU با <span class="ltr">GGUF</span> یا حدود <span class="ltr">9GB VRAM</span> برای مدل <span class="ltr">4B BF16</span></p>
+            <p>گیت‌هاب: <a class="ltr" href="https://github.com/allebee/jevk5" target="_blank" rel="noopener">allebee/jevk5</a></p>
+          </div>
+          <div class="card alt-card">
+            <div class="alt-head"><div>${icon('chart','blue')}</div><div><h3 class="ltr">SemIf</h3><span class="resource-pill blue">متوسط</span></div></div>
+            <p>اندازه مدل: <strong class="ltr">4B</strong></p>
+            <p>اجرای منطقی: روی CPU با <span class="ltr">GGUF</span> یا حدود <span class="ltr">10–12GB VRAM</span></p>
+            <p>گیت‌هاب: <a class="ltr" href="https://github.com/stevewithington/semif" target="_blank" rel="noopener">stevewithington/semif</a></p>
+          </div>
+          <div class="card alt-card">
+            <div class="alt-head"><div>${icon('brain','gold')}</div><div><h3 class="ltr">Bespoke Nimble</h3><span class="resource-pill gold">زیاد</span></div></div>
+            <p>اندازه مدل: <strong class="ltr">9B</strong></p>
+            <p>اجرای منطقی: GPU قوی یا <span class="ltr">Apple Silicon</span> با RAM زیاد</p>
+            <p>گیت‌هاب: <a class="ltr" href="https://github.com/bespokelabsai/nimble" target="_blank" rel="noopener">bespokelabsai/nimble</a></p>
+          </div>
+          <div class="card alt-card alt-card-wide">
+            <div class="alt-head"><div>${icon('gear','red')}</div><div><h3 class="ltr">Open Alternative to Jev</h3><span class="resource-pill red">متغیر تا خیلی زیاد</span></div></div>
+            <p>اندازه مدل: <strong class="ltr">0.6B–27B</strong></p>
+            <p>اجرای منطقی: از یک سیستم معمولی تا حدود <span class="ltr">35GB</span> حافظه GPU</p>
+            <p>گیت‌هاب: <a class="ltr" href="https://github.com/ikermoel/open-alternative-jev" target="_blank" rel="noopener">ikermoel/open-alternative-jev</a></p>
+          </div>
+        </div>
+      </div>`,
+    note: 'اسلاید آخر پنج جایگزین رایگان JEV را از گزینه‌های سبک و CPU-friendly تا پروژه‌های سنگین‌تر مقایسه می‌کند.'
+
   }
 ];
 const host = document.querySelector<HTMLElement>('#slideHost')!;
