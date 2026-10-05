@@ -11,7 +11,7 @@
 نسخه‌ی فعلی روی 2 مسیر تمرکز داره:
 
 - برای **Codex Desktop / Codex CLI**، مسیریابی خودکار هر Turn با استفاده از پروژه‌ی متن‌باز `jev-codex-bridge` راه‌اندازی می‌شه.
-- برای **Claude Code داخل Claude Desktop**، برنامه مسیر نصب گرافیکی `Jev Model Router` رو آماده می‌کنه. این بخش در نسخه‌ی Alpha یک Plugin integration کمکیه و مثل مسیر Codex ادعای Transparent Proxy Routing برای هر Turn نداره.
+- برای **Claude Code داخل Claude Desktop**، برنامه نصب `Jev Model Router` رو با CLI رسمی Claude Code به‌صورت خودکار انجام می‌ده. این مسیر همچنان Plugin integration است و مثل Codex یک Transparent Proxy برای هر Turn نیست.
 
 این تفاوت داخل خود رابط برنامه هم واضح نمایش داده می‌شه؛ بخش Codex با برچسب `AUTOMATIC` و بخش Claude با برچسب `PLUGIN` مشخص شده.
 
@@ -25,10 +25,10 @@
 
 1. آخرین فایل Windows رو از بخش **Releases** دانلود کن.
 2. فایل ZIP رو Extract کن.
-3. روی `START_JEV_ROUTER.bat` دابل‌کلیک کن.
+3. برای اجرای بدون پنجره‌ی Terminal روی `START_JEV_ROUTER.vbs` دابل‌کلیک کن. فایل `START_JEV_ROUTER.bat` فقط برای سازگاری نگه داشته شده.
 4. کلید `TypeSafe` رو Paste کن.
 5. روی **Verify & save** کلیک کن.
-6. برای Codex روی **Connect Codex** و برای Claude روی **Prepare Claude** بزن.
+6. برای Codex روی **Connect Codex** و برای Claude روی **Connect Claude** بزن.
 
 برای استفاده‌ی عادی نیازی به باز کردن Terminal نیست. اگر پیش‌نیازهای بخش Codex روی سیستم نباشن، برنامه بعد از تایید کاربر می‌تونه اون‌ها رو در پس‌زمینه با `WinGet` نصب کنه.
 
@@ -76,7 +76,7 @@ jev-router
 
 برای Codex، نسخه‌ی CLI همون Bridge و تنظیمات دائمی Windows رو انجام می‌ده؛ بنابراین وقتی بعداً Codex Desktop رو باز کنی، تنظیمات Jev همچنان فعاله.
 
-برای Claude، نسخه‌ی CLI متغیر مربوط به کلید رو آماده می‌کنه، Claude Desktop رو باز می‌کنه، Marketplace رو داخل Clipboard می‌ذاره و منتظر می‌مونه تا **Jev Model Router** رو از مسیر **Customize → Plugins** اضافه کنی. خود Claude برای Plugin حساب کاربری این تایید داخل برنامه رو اجباری کرده. بعد از اضافه‌شدن، Plugin در Claude Code sessionهای همون Claude account هم قابل استفاده‌ست.
+برای Claude، نسخه‌ی CLI حالا کل نصب Plugin رو خودش انجام می‌ده: اگر CLI رسمی Claude Code موجود نباشه با WinGet نصبش می‌کنه، Marketplace مربوط به Jev Model Router رو ثبت می‌کنه، Plugin رو در سطح User نصب می‌کنه و Claude Desktop رو باز می‌کنه. بعد از نصب اولیه فقط Session مربوط به Claude Code رو Restart یا Reload کن.
 
 ## اتصال Codex
 
@@ -98,29 +98,29 @@ jev-router
 
 برنامه‌ی `Claude Desktop` بخش گرافیکی `Claude Code` رو داره و Pluginها هم بین تجربه‌های Claude و Claude Code قابل استفاده هستن.
 
-در نسخه‌ی Alpha، دکمه‌ی **Prepare Claude** این کارها رو انجام می‌ده:
+در نسخه‌ی Alpha، دکمه‌ی **Connect Claude** این کارها رو انجام می‌ده:
 
-1. متغیر `TYPESAFE_API_KEY` رو برای Windows user فعلی تنظیم می‌کنه تا Plugin بتونه کلید رو پیدا کنه.
-2. این Marketplace رو داخل Clipboard کپی می‌کنه:
+1. متغیر `TYPESAFE_API_KEY` رو برای Windows user فعلی تنظیم می‌کنه.
+2. اگر دستور `claude` موجود نباشه، CLI رسمی Claude Code رو با WinGet نصب می‌کنه.
+3. Marketplace زیر رو با CLI رسمی Claude Code ثبت می‌کنه:
 
 `Mandrilsquad1441/jev-model-router`
 
-3. بخش Code در `Claude Desktop` رو باز می‌کنه.
-4. مسیر گرافیکی دقیق نصب رو داخل خود برنامه نشون می‌ده:
+4. Plugin زیر رو در سطح User نصب می‌کنه:
 
-**Customize → Plugins → Add → Add marketplace → paste → install Jev Model Router**
+`jev-model-router@jev-model-router`
 
-این بخش عمداً با برچسب `PLUGIN` نمایش داده می‌شه. در نسخه‌ی فعلی، `Jev Model Router` برای پیشنهاد و Delegation مدل استفاده می‌شه؛ این پروژه ادعا نمی‌کنه که Claude Desktop مثل Codex برای هر Turn به‌صورت Transparent پشت یک Proxy قرار گرفته.
+5. Claude Desktop رو باز می‌کنه. بعد از اولین نصب، Session مربوط به Claude Code رو یک بار Restart یا Reload کن.
+
+این بخش همچنان با برچسب `PLUGIN` نمایش داده می‌شه. Jev Model Router داخل Claude Code برای پیشنهاد و Delegation مدل استفاده می‌شه و مثل مسیر Codex یک Transparent Proxy برای هر Turn نیست.
 
 ## ریست و برگشت به حالت پیش‌فرض
 
 هم نسخه‌ی گرافیکی و هم نسخه‌ی CLI گزینه‌های Reset دارن.
 
 - گزینه‌ی **Reset Codex** تنظیمات Codex رو در صورت وجود Backup به حالت قبل برمی‌گردونه، Bridge و Background Service رو حذف می‌کنه و کلیدهای Jev/TypeSafe رو از فایل Bridge پاک می‌کنه.
-- گزینه‌ی **Reset Claude** متغیرهای Jev/TypeSafe ساخته‌شده توسط این پروژه رو از Windows user پاک می‌کنه.
+- گزینه‌ی **Reset Claude** تا جای ممکن Plugin و Marketplace مربوط به Jev Model Router رو حذف می‌کنه و بعد متغیرهای Jev/TypeSafe ساخته‌شده توسط این پروژه رو از Windows user پاک می‌کنه.
 - گزینه‌ی **Reset everything** علاوه بر این‌ها، کلید محافظت‌شده‌ی TypeSafe که Jev Router با DPAPI ذخیره کرده رو هم حذف می‌کنه.
-
-Pluginهای Claude در سطح Claude account ذخیره می‌شن. اگر **Jev Model Router** رو به حساب Claude اضافه کرده باشی و بخوای خود Plugin هم کاملاً حذف بشه، از مسیر **Customize → Plugins** گزینه‌ی Remove رو بزن.
 
 ## نگهداری TypeSafe API key
 
@@ -150,7 +150,7 @@ Pluginهای Claude در سطح Claude account ذخیره می‌شن. اگر **
 - ذخیره‌ی محلی کلید با `Windows DPAPI`
 - نصب و حذف ساده‌ی Codex Bridge
 - راه‌اندازی Background Service برای Codex
-- راهنمای گرافیکی اتصال Claude Desktop
+- نصب خودکار Marketplace و Plugin مربوط به Claude Code
 - صفحه‌ی وضعیت و تشخیص پیش‌نیازها
 - پکیج Portable
 - ساخت خودکار Release با GitHub Actions
@@ -175,7 +175,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\JevRouter.ps1
 
 <div dir="rtl" align="right">
 
-فایل `START_JEV_ROUTER.bat` رابط WPF رو با Windows PowerShell در پس‌زمینه اجرا می‌کنه؛ بنابراین کاربر عادی نیازی به باز کردن Terminal نداره.
+لانچر پیشنهادی `START_JEV_ROUTER.vbs` رابط WPF رو با Windows PowerShell مخفی اجرا می‌کنه؛ بنابراین هیچ پنجره‌ی Console ساخته نمی‌شه.
 
 ## پروژه‌های Third-party
 
