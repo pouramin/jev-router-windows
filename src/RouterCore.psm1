@@ -148,6 +148,52 @@ function Get-NodeMajorVersion {
     } catch { return 0 }
 }
 
+function Get-ClaudeCodeCliPath {
+    Refresh-ProcessPath
+
+    foreach ($name in @('claude.exe','claude')) {
+        $path = Get-CommandPathSafe -Name $name
+        if ($path) { return $path }
+    }
+
+    $native = Join-Path $userHome '.local\bin\claude.exe'
+    if (Test-Path -LiteralPath $native) {
+        $nativeDir = Split-Path -Parent $native
+        if (($env:Path -split ';') -notcontains $nativeDir) {
+            $env:Path = $nativeDir + ';' + $env:Path
+        }
+        return $native
+    }
+
+    return $null
+}
+
+function Ensure-ClaudeCodeCli {
+    $messages = New-Object System.Collections.Generic.List[string]
+    $claude = Get-ClaudeCodeCliPath
+    if ($claude) {
+        return [pscustomobject]@{ Path = $claude; Messages = $messages }
+    }
+
+    $messages.Add('Installing Claude Code CLI with WinGet…')
+    [void](Install-WithWinget -PackageId 'Anthropic.ClaudeCode')
+    Refresh-ProcessPath
+
+    $nativeDir = Join-Path $userHome '.local\bin'
+    if (Test-Path -LiteralPath $nativeDir) {
+        if (($env:Path -split ';') -notcontains $nativeDir) {
+            $env:Path = $nativeDir + ';' + $env:Path
+        }
+    }
+
+    $claude = Get-ClaudeCodeCliPath
+    if (-not $claude) {
+        throw 'Claude Code CLI was installed but the claude command is still unavailable. Close and reopen Jev Router, then try Connect Claude again.'
+    }
+
+    return [pscustomobject]@{ Path = $claude; Messages = $messages }
+}
+
 function Test-ClaudeDesktopInstalled {
     $candidates = @(
         (Join-Path $env:LOCALAPPDATA 'AnthropicClaude\Claude.exe'),
@@ -181,26 +227,42 @@ function Test-CodexInstalled {
 }
 
 function Test-ClaudePluginPresent {
-    $root = Join-Path $HOME '.claude'
-    if (-not (Test-Path $root)) { return $false }
-    try {
-        $hit = Get-ChildItem -Path $root -Recurse -Force -ErrorAction SilentlyContinue |
-            Where-Object { $_.FullName -match 'jev-model-router' } |
-            Select-Object -First 1
-        return [bool]$hit
-    } catch { return $false }
+    $claude = Get-ClaudeCodeCliPath
+    if ($claude) {
+        try {
+            $list = Invoke-ProcessCaptured -FilePath $claude -ArgumentList @('plugin','list') -TimeoutSeconds 60
+            if ($list -match 'jev-model-router@jev-model-router') { return $true }
+        } catch { }
+    }
+
+    $installed = Join-Path $userHome '.claude\plugins\installed_plugins.json'
+    if (Test-Path -LiteralPath $installed) {
+        try {
+            $json = Get-Content -LiteralPath $installed -Raw | ConvertFrom-Json
+            if ($json.plugins -and $json.plugins.PSObject.Properties.Name -contains 'jev-model-router@jev-model-router') {
+                return $true
+            }
+        } catch { }
+    }
+
+    return $false
 }
 
 function Test-CodexBridgePresent {
     Refresh-ProcessPath
-    return [bool](Get-CommandPathSafe -Name 'jev-bridge')
+    $bridge = Get-CommandPathSafe -Name 'jev-bridge.cmd'
+    if (-not $bridge) { $bridge = Get-CommandPathSafe -Name 'jev-bridge' }
+    if (-not $bridge) { return $false }
+
+    $state = Join-Path $userHome '.config\jev-codex-bridge\state.json'
+    return (Test-Path -LiteralPath $state)
 }
 
 function Get-SystemStatus {
     Refresh-ProcessPath
     return [pscustomobject]@{
         ClaudeDesktop = Test-ClaudeDesktopInstalled
-        ClaudeCodeCommand = [bool](Get-CommandPathSafe -Name 'claude')
+        ClaudeCodeCommand = [bool](Get-ClaudeCodeCliPath)
         ClaudePlugin = Test-ClaudePluginPresent
         Codex = Test-CodexInstalled
         CodexCommand = [bool](Get-CommandPathSafe -Name 'codex')
@@ -304,7 +366,9 @@ function Write-CodexBridgeKeyFile {
             Where-Object { $_ -notmatch '^\s*(TYPESAFE_API_KEY|JEV_API_KEY)\s*=' }
     }
     $content = @($existing) + @("TYPESAFE_API_KEY=$($ApiKey.Trim())")
-    Set-Content -Path $script:BridgeEnvFile -Value $content -Encoding UTF8
+    # Windows PowerShell 5.1 writes a BOM with -Encoding UTF8. Node's parseEnv
+    # can then treat the first key name as BOM-prefixed, so use ASCII here.
+    Set-Content -Path $script:BridgeEnvFile -Value $content -Encoding ASCII
     Set-RestrictedFileAcl -Path $script:BridgeEnvFile
     Write-JevRouterLog "Updated Codex bridge key file at $script:BridgeEnvFile"
 }
@@ -329,7 +393,7 @@ function Install-CodexBridge {
     if (-not $bridge) { throw 'jev-bridge was installed but is not on PATH yet. Close and reopen Jev Router, then try again.' }
 
     $log.Add('Configuring Codex Desktop and background service…')
-    $installOutput = Invoke-ProcessCaptured -FilePath $bridge -ArgumentList @('install') -TimeoutSeconds 600
+    $installOutput = Invoke-ProcessCaptured -FilePath $bridge -ArgumentList @('install','--key-file',$script:BridgeEnvFile) -TimeoutSeconds 600
     if ($installOutput) { $log.Add($installOutput) }
     $status = Invoke-ProcessCaptured -FilePath $bridge -ArgumentList @('status') -TimeoutSeconds 60
     if ($status) { $log.Add($status) }
@@ -365,23 +429,86 @@ function Remove-CodexBridge {
 
 function Initialize-ClaudeIntegration {
     param([Parameter(Mandatory)][string]$ApiKey)
-    [Environment]::SetEnvironmentVariable('TYPESAFE_API_KEY', $ApiKey.Trim(), 'User')
-    $marketplace = 'Mandrilsquad1441/jev-model-router'
-    try { Set-Clipboard -Value $marketplace } catch { }
-    Write-JevRouterLog 'Prepared Claude plugin setup and stored TYPESAFE_API_KEY in the user environment.'
+
+    $log = New-Object System.Collections.Generic.List[string]
+    $key = $ApiKey.Trim()
+
+    # The plugin reads the standard TypeSafe environment variable when no
+    # plugin-specific userConfig value is supplied.
+    [Environment]::SetEnvironmentVariable('TYPESAFE_API_KEY', $key, 'User')
+    $env:TYPESAFE_API_KEY = $key
+
+    $cli = Ensure-ClaudeCodeCli
+    foreach ($message in $cli.Messages) { $log.Add($message) }
+    $claude = $cli.Path
+
+    $marketplaceSource = 'Mandrilsquad1441/jev-model-router'
+    $marketplaceName = 'jev-model-router'
+    $pluginId = 'jev-model-router@jev-model-router'
+
+    # Prefer HTTPS so a machine without GitHub SSH credentials still works.
+    $previousHttpsPreference = $env:CLAUDE_CODE_PLUGIN_PREFER_HTTPS
+    $env:CLAUDE_CODE_PLUGIN_PREFER_HTTPS = '1'
+
+    try {
+        $marketplaces = Invoke-ProcessCaptured -FilePath $claude -ArgumentList @('plugin','marketplace','list') -TimeoutSeconds 120
+        if ($marketplaces -notmatch [regex]::Escape($marketplaceName)) {
+            $log.Add('Adding Jev Model Router marketplace…')
+            $added = Invoke-ProcessCaptured -FilePath $claude -ArgumentList @('plugin','marketplace','add',$marketplaceSource) -TimeoutSeconds 300
+            if ($added) { $log.Add($added) }
+        } else {
+            $log.Add('Jev Model Router marketplace is already registered.')
+        }
+
+        $log.Add('Installing Jev Model Router for Claude Code…')
+        $installed = Invoke-ProcessCaptured -FilePath $claude -ArgumentList @('plugin','install',$pluginId,'--scope','user') -TimeoutSeconds 300
+        if ($installed) { $log.Add($installed) }
+    } finally {
+        if ($null -eq $previousHttpsPreference) {
+            Remove-Item Env:CLAUDE_CODE_PLUGIN_PREFER_HTTPS -ErrorAction SilentlyContinue
+        } else {
+            $env:CLAUDE_CODE_PLUGIN_PREFER_HTTPS = $previousHttpsPreference
+        }
+    }
+
+    Write-JevRouterLog 'Claude Jev plugin installation finished.'
     try { Start-Process 'claude://code' } catch { }
+
     return [pscustomobject]@{
-        Marketplace = $marketplace
-        Message = 'Claude is ready for plugin setup. The marketplace name was copied to your clipboard.'
+        Marketplace = $marketplaceSource
+        Plugin = $pluginId
+        Message = 'Jev Model Router is installed for Claude Code. Restart or reload the Claude Code session to activate it.'
+        Log = @($log)
     }
 }
 
 function Remove-ClaudeIntegration {
+    $log = New-Object System.Collections.Generic.List[string]
+    $claude = Get-ClaudeCodeCliPath
+
+    if ($claude) {
+        try {
+            $output = Invoke-ProcessCaptured -FilePath $claude -ArgumentList @('plugin','uninstall','jev-model-router@jev-model-router','--scope','user') -TimeoutSeconds 180
+            if ($output) { $log.Add($output) }
+        } catch {
+            $log.Add("Claude plugin removal warning: $($_.Exception.Message)")
+        }
+
+        try {
+            $output = Invoke-ProcessCaptured -FilePath $claude -ArgumentList @('plugin','marketplace','remove','jev-model-router') -TimeoutSeconds 180
+            if ($output) { $log.Add($output) }
+        } catch {
+            $log.Add("Claude marketplace removal warning: $($_.Exception.Message)")
+        }
+    }
+
     foreach ($name in @('TYPESAFE_API_KEY','JEV_API_KEY','JEV_ROUTER_TYPESAFE_API_KEY')) {
         [Environment]::SetEnvironmentVariable($name, $null, 'User')
         Remove-Item ("Env:" + $name) -ErrorAction SilentlyContinue
     }
-    Write-JevRouterLog 'Removed Jev/TypeSafe environment keys used by the Claude integration. Account-level plugin removal remains inside Claude Customize > Plugins.'
+
+    Write-JevRouterLog 'Removed the Claude Jev plugin where possible and cleared Jev/TypeSafe environment keys.'
+    return $log
 }
 
 function Reset-JevRouterAll {
