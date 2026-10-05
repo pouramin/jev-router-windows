@@ -69,9 +69,32 @@ const slides = [
           ${card('brain', 'System 1 Inspiration', 'JEV follows fast, intuitive decision-making — inspired by <strong class="highlight-blue">Daniel Kahneman</strong>, <strong class="highlight-gold">System 1</strong> vs. <strong class="highlight-blue">System 2</strong>.', 'gold')}
           ${card('chart', 'Why the name JEV?', 'Named after <strong class="highlight-blue">William Stanley Jevons</strong> and the <strong class="highlight-gold">Jevons paradox</strong>: when efficiency improves, total usage can grow.', 'green')}
         </div>
+        <div class="origin-lower-grid">
+          <div class="panel founder-card">
+            <div class="founder-icon">${icon('user', 'blue')}</div>
+            <div>
+              <span class="origin-eyebrow">FOUNDER &amp; CEO</span>
+              <h2>Diogo Almeida</h2>
+              <p>Founder and CEO of <strong class="highlight-blue">TypeSafe</strong>. Former OpenAI researcher; previously at Google Brain.</p>
+            </div>
+          </div>
+          <div class="panel system-compare">
+            <div class="system-card system-one">
+              <span class="system-label">System 1</span>
+              <h3>Fast &amp; intuitive</h3>
+              <p>Automatic, quick judgments with little deliberate effort.</p>
+            </div>
+            <div class="system-vs">VS</div>
+            <div class="system-card system-two">
+              <span class="system-label">System 2</span>
+              <h3>Slow &amp; deliberate</h3>
+              <p>Analytical, effortful reasoning carried out step by step.</p>
+            </div>
+          </div>
+        </div>
         <div class="callout">Built by <span class="highlight-blue">TypeSafe</span> as a <span class="highlight-gold">“System One”</span> decision model for automation.</div>
       </div>`,
-        note: 'The idea starts from one question: why generate paragraphs when software often needs only a decision?'
+        note: 'TypeSafe founder and CEO Diogo Almeida frames JEV around the System 1 / System 2 distinction: fast intuitive judgment versus slower deliberate reasoning.'
     },
     {
         kicker: 'Route<br>Map<br>Execute',
