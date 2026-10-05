@@ -119,7 +119,7 @@ function Setup-Claude {
 
     Write-Host ''
     Write-Host 'Preparing Claude Code / Claude Desktop...' -ForegroundColor Cyan
-    $result = Prepare-ClaudeIntegration -ApiKey $key
+    $result = Initialize-ClaudeIntegration -ApiKey $key
 
     Write-Host 'TypeSafe key was added to your Windows user environment for the plugin.' -ForegroundColor Green
     Write-Host ('Marketplace copied to clipboard: ' + $result.Marketplace) -ForegroundColor Gray
