@@ -100,6 +100,18 @@ jobs:
             throw 'ClaudeInstructions XAML control is missing.'
           }
 
+          foreach ($control in @('ClearKeyButton','DisconnectClaudeButton')) {
+            if ($guiSource -notmatch ('x:Name="' + [regex]::Escape($control) + '"')) {
+              throw "Required GUI control is missing: $control"
+            }
+          }
+          if ($guiSource -notmatch [regex]::Escape("Background 'Disconnect Claude'")) {
+            throw 'Claude disconnect action is not wired to the background worker.'
+          }
+          if ($guiSource -notmatch [regex]::Escape('Remove-SavedTypeSafeKey')) {
+            throw 'Clear saved key control is not wired to DPAPI key removal.'
+          }
+
           $launcher = Get-Content .\START_JEV_ROUTER.vbs -Raw
           if ($launcher -notmatch 'shell\.Run command, 0, False') {
             throw 'Console-free VBScript launcher is not configured correctly.'
@@ -114,6 +126,15 @@ jobs:
           }
           if ($coreSource -notmatch [regex]::Escape("'plugin','install',`$pluginId,'--scope','user'")) {
             throw 'Claude setup must install the plugin automatically.'
+          }
+          if ($coreSource -notmatch [regex]::Escape('function Remove-JevCodexConfigFallback')) {
+            throw 'Codex disconnect fallback cleanup is missing.'
+          }
+          if ($coreSource -notmatch [regex]::Escape("Remove-Item -LiteralPath `$bridgeHome -Recurse -Force")) {
+            throw 'Codex disconnect must remove stale bridge installation state.'
+          }
+          if ($coreSource -notmatch [regex]::Escape("'plugin','uninstall','jev-model-router@jev-model-router','--scope','user'")) {
+            throw 'Claude disconnect must uninstall the Jev Model Router plugin.'
           }
 
       - name: Upload workflow artifact
