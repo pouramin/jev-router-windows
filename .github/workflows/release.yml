@@ -3,7 +3,6 @@ name: Build Windows package
 on:
   push:
     branches: [main]
-    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -46,12 +45,34 @@ jobs:
       - name: Build portable package
         shell: powershell
         run: |
-          New-Item -ItemType Directory -Path build\JevRouter -Force | Out-Null
-          Copy-Item src build\JevRouter\src -Recurse
-          Copy-Item cli build\JevRouter\cli -Recurse
-          Copy-Item docs build\JevRouter\docs -Recurse
-          Copy-Item START_JEV_ROUTER.vbs, START_JEV_ROUTER.bat, JEV_ROUTER_CLI.bat, install.ps1, README.md, README_EN.md, README_FA.md, SECURITY.md, THIRD_PARTY_NOTICES.md, LICENSE, VERSION build\JevRouter\
-          Compress-Archive -Path build\JevRouter -DestinationPath JevRouter-Windows-Portable.zip -Force
+          $version = (Get-Content .\VERSION -Raw).Trim()
+          $assetName = "JevRouter-Windows-v$version.zip"
+
+          Remove-Item build -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path build\JevRouter\app -Force | Out-Null
+
+          Copy-Item .\src\JevRouter.ps1 build\JevRouter\app\JevRouter.ps1
+          Copy-Item .\src\RouterCore.psm1 build\JevRouter\app\RouterCore.psm1
+          Copy-Item .\LICENSE build\JevRouter\LICENSE
+          Copy-Item .\THIRD_PARTY_NOTICES.md build\JevRouter\THIRD_PARTY_NOTICES.md
+
+          $launcher = @'
+          Option Explicit
+
+          Dim shell, fso, root, scriptPath, command
+          Set shell = CreateObject("WScript.Shell")
+          Set fso = CreateObject("Scripting.FileSystemObject")
+
+          root = fso.GetParentFolderName(WScript.ScriptFullName)
+          scriptPath = fso.BuildPath(root, "app\JevRouter.ps1")
+          command = "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ & scriptPath & """"
+
+          shell.Run command, 0, False
+          '@
+          Set-Content -LiteralPath 'build\JevRouter\Jev Router.vbs' -Value $launcher -Encoding ASCII
+
+          Compress-Archive -Path build\JevRouter -DestinationPath $assetName -Force
+          "JEV_ASSET_NAME=$assetName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Smoke-test Windows launchers
         shell: powershell
@@ -156,25 +177,69 @@ jobs:
             throw 'Claude disconnect must uninstall the Jev Model Router plugin.'
           }
 
+          # Validate the exact end-user package layout.
+          $packageRoot = Resolve-Path .\build\JevRouter
+          $rootNames = @(Get-ChildItem $packageRoot | Select-Object -ExpandProperty Name | Sort-Object)
+          $expectedRoot = @('app','Jev Router.vbs','LICENSE','THIRD_PARTY_NOTICES.md') | Sort-Object
+          if (($rootNames -join '|') -ne ($expectedRoot -join '|')) {
+            throw "Unexpected files in portable package root: $($rootNames -join ', ')"
+          }
+
+          $appNames = @(Get-ChildItem (Join-Path $packageRoot 'app') | Select-Object -ExpandProperty Name | Sort-Object)
+          $expectedApp = @('JevRouter.ps1','RouterCore.psm1') | Sort-Object
+          if (($appNames -join '|') -ne ($expectedApp -join '|')) {
+            throw "Unexpected files in portable app folder: $($appNames -join ', ')"
+          }
+
+          $releaseLauncher = Get-Content (Join-Path $packageRoot 'Jev Router.vbs') -Raw
+          if ($releaseLauncher -notmatch [regex]::Escape('app\JevRouter.ps1') -or $releaseLauncher -notmatch 'shell\.Run command, 0, False') {
+            throw 'Stable portable launcher is not configured for the internal app folder.'
+          }
+
+          powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\build\JevRouter\app\JevRouter.ps1 -SelfTest
+          if ($LASTEXITCODE -ne 0) {
+            throw "Packaged app self-test failed with exit code $LASTEXITCODE."
+          }
+
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: JevRouter-Windows-Portable
-          path: JevRouter-Windows-Portable.zip
+          name: JevRouter-Windows-Package
+          path: ${{ env.JEV_ASSET_NAME }}
           retention-days: 30
 
       - name: Resolve release channel
         id: meta
         shell: bash
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
-            echo "title=Jev Router for Windows ${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          VERSION="$(tr -d '\r\n' < VERSION)"
+          if [[ "$COMMIT_MESSAGE" == release:\ v* ]]; then
+            echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+            echo "title=Jev Router for Windows v$VERSION" >> "$GITHUB_OUTPUT"
+            echo "stable=true" >> "$GITHUB_OUTPUT"
             echo "rolling=false" >> "$GITHUB_OUTPUT"
           else
             echo "tag=latest" >> "$GITHUB_OUTPUT"
-            echo "title=Jev Router for Windows — Latest Alpha" >> "$GITHUB_OUTPUT"
+            echo "title=Jev Router for Windows — Latest Development Build" >> "$GITHUB_OUTPUT"
+            echo "stable=false" >> "$GITHUB_OUTPUT"
             echo "rolling=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create stable version tag
+        if: steps.meta.outputs.stable == 'true'
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --tags origin "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Stable tag $RELEASE_TAG already exists; leaving it immutable."
+          else
+            git tag "$RELEASE_TAG" "$GITHUB_SHA"
+            git push origin "refs/tags/$RELEASE_TAG"
           fi
 
       - name: Move rolling latest tag
@@ -192,20 +257,35 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.meta.outputs.tag }}
           RELEASE_TITLE: ${{ steps.meta.outputs.title }}
+          STABLE_RELEASE: ${{ steps.meta.outputs.stable }}
         run: |
-          $notes = @"
-          Graphical Windows alpha for setting up TypeSafe Jev routing.
+          if ($env:STABLE_RELEASE -eq 'true') {
+            $notes = @"
+          # Jev Router for Windows v1.0.0
 
-          - Codex: automatic routing through jev-codex-bridge.
-          - Claude Code Desktop: guided Jev Model Router plugin integration.
-          - TypeSafe API key verification and Windows DPAPI local storage.
-          - No terminal interaction required for the normal GUI path.
+          First stable release.
 
-          Extract the ZIP and double-click START_JEV_ROUTER.vbs for a completely console-free launch. START_JEV_ROUTER.bat remains as a compatibility shim.
+          - One-click Codex routing through jev-codex-bridge.
+          - Automatic Claude Code plugin installation and removal.
+          - Connect / Disconnect toggle controls.
+          - Open Codex / Open Claude shortcuts.
+          - TypeSafe key verification, DPAPI storage, and saved-key removal.
+          - Console-free maximized Windows UI.
+          - Clean portable package with only the runtime files and required legal notices.
 
-          This is an unsigned alpha build. Review SECURITY.md and THIRD_PARTY_NOTICES.md before using it with sensitive repositories.
+          Extract the ZIP and double-click **Jev Router.vbs**.
+
+          The Windows build is currently unsigned.
           "@
+          } else {
+            $notes = @"
+          Development build of Jev Router for Windows.
 
+          This rolling build tracks main and may change between commits.
+          "@
+          }
+
+          $asset = $env:JEV_ASSET_NAME
           $previousPreference = $ErrorActionPreference
           $ErrorActionPreference = 'SilentlyContinue'
           gh release view $env:RELEASE_TAG 2>$null | Out-Null
@@ -213,9 +293,17 @@ jobs:
           $ErrorActionPreference = $previousPreference
 
           if ($releaseExists) {
-            gh release upload $env:RELEASE_TAG JevRouter-Windows-Portable.zip --clobber
-            gh release edit $env:RELEASE_TAG --title $env:RELEASE_TITLE --notes $notes --prerelease
+            gh release upload $env:RELEASE_TAG $asset --clobber
+            if ($env:STABLE_RELEASE -eq 'true') {
+              gh release edit $env:RELEASE_TAG --title $env:RELEASE_TITLE --notes $notes --latest
+            } else {
+              gh release edit $env:RELEASE_TAG --title $env:RELEASE_TITLE --notes $notes --prerelease
+            }
           }
           else {
-            gh release create $env:RELEASE_TAG JevRouter-Windows-Portable.zip --title $env:RELEASE_TITLE --notes $notes --prerelease --target $env:GITHUB_SHA
+            if ($env:STABLE_RELEASE -eq 'true') {
+              gh release create $env:RELEASE_TAG $asset --title $env:RELEASE_TITLE --notes $notes --latest --target $env:GITHUB_SHA
+            } else {
+              gh release create $env:RELEASE_TAG $asset --title $env:RELEASE_TITLE --notes $notes --prerelease --target $env:GITHUB_SHA
+            }
           }
