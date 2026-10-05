@@ -15,7 +15,7 @@ Codex uses a transparent bridge/provider workflow. Claude uses a plugin workflow
 
 ## Current GUI
 
-The app currently provides:
+The stable Windows app currently provides:
 
 - Maximized startup.
 - Console-free launch through `START_JEV_ROUTER.vbs`.
@@ -36,7 +36,7 @@ The app currently provides:
 
 1. Download the latest Windows ZIP from **Releases**.
 2. Extract it.
-3. Double-click `START_JEV_ROUTER.vbs`.
+3. Double-click `Jev Router.vbs`.
 4. Paste your TypeSafe API key.
 5. Click **Verify & save**.
 6. Connect Codex, Claude, or both.
@@ -179,7 +179,7 @@ See [SECURITY.md](SECURITY.md).
 
 ## Project status
 
-**Alpha**
+**v1.0.0 Stable**
 
 Current scope includes:
 
@@ -199,7 +199,7 @@ Current scope includes:
 - Open Codex / Open Claude
 - Status detection
 - Footer links
-- Portable package
+- Slim portable package with only runtime files and required legal notices
 - GitHub Actions build, smoke-test, and release pipeline
 
 Planned:
@@ -216,9 +216,9 @@ Planned:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\JevRouter.ps1
 ```
 
-Normal portable launch:
+Stable portable launch:
 
-`START_JEV_ROUTER.vbs`
+`Jev Router.vbs`
 
 ## Links
 
