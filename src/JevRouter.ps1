@@ -172,10 +172,19 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
      </Grid>
 
      <Grid Grid.Row="1" Margin="41,15,0,0">
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <Grid.ColumnDefinitions>
+       <ColumnDefinition Width="*"/>
+       <ColumnDefinition Width="12"/>
+       <ColumnDefinition Width="Auto"/>
+       <ColumnDefinition Width="8"/>
+       <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
       <PasswordBox x:Name="ApiKeyBox" Height="42" MaxLength="500" VerticalContentAlignment="Center"/>
       <Button x:Name="VerifyButton" Grid.Column="2" Content="Verify &amp; save" MinWidth="132" Height="42"
               Style="{StaticResource PrimaryButton}"/>
+      <Button x:Name="ClearKeyButton" Grid.Column="4" Content="Clear saved key" MinWidth="118" Height="42"
+              Background="#2A171A" Foreground="#FFB4B4" BorderBrush="#60333B" BorderThickness="1"
+              FontWeight="SemiBold" Cursor="Hand"/>
      </Grid>
     </Grid>
    </Border>
@@ -286,9 +295,16 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
                  TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="10.5" LineHeight="16" Margin="0,14,0,0"/>
 
       <Grid Grid.Row="4" Margin="0,18,0,0">
-       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="8"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="8"/>
+        <ColumnDefinition Width="Auto"/>
+       </Grid.ColumnDefinitions>
        <Button x:Name="PrepareClaudeButton" Content="Connect Claude" Height="42" Style="{StaticResource BlueButton}"/>
-       <Button x:Name="OpenClaudeButton" Grid.Column="2" Content="Open Claude" Height="42" MinWidth="102" Style="{StaticResource SecondaryButton}"/>
+       <Button x:Name="DisconnectClaudeButton" Grid.Column="2" Content="Disconnect" Height="42" MinWidth="94" Style="{StaticResource SecondaryButton}"/>
+       <Button x:Name="OpenClaudeButton" Grid.Column="4" Content="Open Claude" Height="42" MinWidth="94" Style="{StaticResource SecondaryButton}"/>
       </Grid>
      </Grid>
     </Border>
@@ -323,12 +339,12 @@ function C([string]$Name) { $window.FindName($Name) }
 function B([string]$Color) { New-Object Windows.Media.SolidColorBrush $Color }
 function Err([string]$Message) { [Windows.MessageBox]::Show($window,$Message,'Jev Router','OK','Error') | Out-Null }
 
-$ApiKeyBox=C 'ApiKeyBox'; $VerifyButton=C 'VerifyButton'; $KeyStatus=C 'KeyStatus'
+$ApiKeyBox=C 'ApiKeyBox'; $VerifyButton=C 'VerifyButton'; $ClearKeyButton=C 'ClearKeyButton'; $KeyStatus=C 'KeyStatus'
 $GlobalDot=C 'GlobalDot'; $GlobalStatus=C 'GlobalStatus'
 $CodexDetection=C 'CodexDetection'; $CodexBridgeStatus=C 'CodexBridgeStatus'
 $ClaudeDetection=C 'ClaudeDetection'; $ClaudePluginStatus=C 'ClaudePluginStatus'
 $ConnectCodexButton=C 'ConnectCodexButton'; $DisconnectCodexButton=C 'DisconnectCodexButton'
-$PrepareClaudeButton=C 'PrepareClaudeButton'; $OpenClaudeButton=C 'OpenClaudeButton'
+$PrepareClaudeButton=C 'PrepareClaudeButton'; $DisconnectClaudeButton=C 'DisconnectClaudeButton'; $OpenClaudeButton=C 'OpenClaudeButton'
 $RefreshButton=C 'RefreshButton'; $ResetButton=C 'ResetButton'; $FooterStatus=C 'FooterStatus'; $ClaudeInstructions=C 'ClaudeInstructions'
 
 $script:Busy=$false
@@ -338,7 +354,7 @@ $script:Timer=New-Object Windows.Threading.DispatcherTimer
 $script:Timer.Interval=[TimeSpan]::FromMilliseconds(400)
 
 function Busy([bool]$Value,[string]$Message='Working...') {
- foreach($x in @($VerifyButton,$ConnectCodexButton,$DisconnectCodexButton,$PrepareClaudeButton,$RefreshButton,$ResetButton)){ $x.IsEnabled=-not $Value }
+ foreach($x in @($VerifyButton,$ClearKeyButton,$ConnectCodexButton,$DisconnectCodexButton,$PrepareClaudeButton,$DisconnectClaudeButton,$OpenClaudeButton,$RefreshButton,$ResetButton)){ $x.IsEnabled=-not $Value }
  $script:Busy=$Value; $GlobalStatus.Text=$(if($Value){$Message}else{'Ready'}); $GlobalDot.Fill=B $(if($Value){'#F0C35A'}else{'#92A0B5'})
 }
 
@@ -379,6 +395,8 @@ try {
   $key=Get-SavedTypeSafeKey
   if(-not $key){throw 'Save a valid TypeSafe key first.'}
   $result=Initialize-ClaudeIntegration -ApiKey $key
+ } elseif($Name -eq 'Disconnect Claude'){
+  $result=Remove-ClaudeIntegration
  } elseif($Name -eq 'Reset All'){
   $result=Reset-JevRouterAll
  } else {
@@ -448,6 +466,14 @@ $script:Timer.Add_Tick({
   $FooterStatus.Text='Claude plugin installed.'
   [Windows.MessageBox]::Show($window,"Jev Model Router is installed for Claude Code. Restart or reload the Claude Code session to activate it.",'Claude connected','OK','Information')|Out-Null
  }
+ elseif($result -and $result.Action -eq 'Disconnect Claude'){
+  $ClaudeInstructions.Text='Claude integration removed. Restart Claude Desktop to refresh plugin state.'
+  $FooterStatus.Text='Claude integration removed.'
+  [Windows.MessageBox]::Show($window,"Jev Model Router was removed from Claude where possible. Restart Claude Desktop to refresh the plugin list.",'Claude disconnected','OK','Information')|Out-Null
+ }
+ elseif($result -and $result.Action -eq 'Disconnect Codex'){
+  [Windows.MessageBox]::Show($window,"Jev Router was removed from Codex configuration. Restart Codex Desktop to refresh the model list.",'Codex disconnected','OK','Information')|Out-Null
+ }
  elseif($result -and $result.Action -eq 'Reset All'){[Windows.MessageBox]::Show($window,"Jev Router data was reset. Codex was restored where a bridge backup was available, the Claude plugin was removed where possible, and Jev/TypeSafe credentials saved by this app were removed.",'JEV reset complete','OK','Information')|Out-Null}
 })
 
@@ -459,12 +485,24 @@ $VerifyButton.Add_Click({
  finally{Busy $false;Refresh-Ui}
 })
 
+$ClearKeyButton.Add_Click({
+ if(-not(Get-SavedTypeSafeKey)){Refresh-Ui;return}
+ $msg='Forget the TypeSafe API key saved by Jev Router for this Windows user? Existing Codex or Claude integrations can keep their own configured credential until you disconnect them.'
+ if([Windows.MessageBox]::Show($window,$msg,'Clear saved key','YesNo','Warning') -ne 'Yes'){return}
+ try{
+  Remove-SavedTypeSafeKey
+  $ApiKeyBox.Password=''
+  Refresh-Ui
+  [Windows.MessageBox]::Show($window,'The locally saved TypeSafe key was removed.','Saved key cleared','OK','Information')|Out-Null
+ }catch{Err $_.Exception.Message}
+})
+
 $ConnectCodexButton.Add_Click({
  if(-not(Get-SavedTypeSafeKey)){Err 'Verify and save your TypeSafe API key first.';return}
  $q='This can install Git and Node.js with WinGet, install jev-codex-bridge, back up Codex configuration, and add a user-level background task. Continue?'
  if([Windows.MessageBox]::Show($window,$q,'Connect Codex','YesNo','Question') -eq 'Yes'){Background 'Connect Codex'}
 })
-$DisconnectCodexButton.Add_Click({if([Windows.MessageBox]::Show($window,'Restore Codex configuration and remove Jev Codex Bridge?','Disconnect Codex','YesNo','Question') -eq 'Yes'){Background 'Disconnect Codex'}})
+$DisconnectCodexButton.Add_Click({if([Windows.MessageBox]::Show($window,'Remove Jev Router from Codex, restore the previous model selection where possible, and remove the bridge service/package?','Disconnect Codex','YesNo','Question') -eq 'Yes'){Background 'Disconnect Codex'}})
 $ResetButton.Add_Click({
  $msg='Reset everything configured by Jev Router? This restores Codex from the bridge backup when available, removes the Codex bridge, removes the Claude Jev plugin where possible, clears Jev/TypeSafe environment keys, deletes the protected TypeSafe key saved by this app, and removes Jev keys from the bridge environment file.'
  if([Windows.MessageBox]::Show($window,$msg,'Reset JEV','YesNo','Warning') -eq 'Yes'){Background 'Reset All'}
@@ -473,6 +511,10 @@ $PrepareClaudeButton.Add_Click({
  if(-not(Get-SavedTypeSafeKey)){Err 'Verify and save your TypeSafe API key first.';return}
  $q='This can install the official Claude Code CLI with WinGet if it is missing, add the Jev Model Router marketplace, install the plugin at user scope, and open Claude. Continue?'
  if([Windows.MessageBox]::Show($window,$q,'Connect Claude','YesNo','Question') -eq 'Yes'){Background 'Connect Claude'}
+})
+$DisconnectClaudeButton.Add_Click({
+ $q='Remove Jev Model Router from Claude Code, remove its marketplace entry where possible, and clear Jev/TypeSafe environment keys created for Claude?'
+ if([Windows.MessageBox]::Show($window,$q,'Disconnect Claude','YesNo','Question') -eq 'Yes'){Background 'Disconnect Claude'}
 })
 $OpenClaudeButton.Add_Click({try{Start-Process 'claude://code'}catch{Err 'Claude Desktop could not be opened.'}})
 $RefreshButton.Add_Click({Refresh-Ui})
