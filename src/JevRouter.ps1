@@ -262,7 +262,7 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
        </Border>
       </Grid>
 
-      <TextBlock Grid.Row="1" Text="Plugin-assisted setup for Claude Code. The app prepares your TypeSafe key and opens Claude, then you finish the plugin install from Claude's graphical Plugins screen."
+      <TextBlock Grid.Row="1" Text="Automatic Claude Code plugin setup. Jev Router installs the Claude Code CLI if needed, adds the marketplace, installs Jev Model Router for this user, then opens Claude."
                  TextWrapping="Wrap" Foreground="#C9D2DE" FontSize="11.5" LineHeight="18" Margin="0,16,0,0"/>
 
       <Border Grid.Row="2" Background="{StaticResource PanelSoft}" BorderBrush="#1E2B3D" BorderThickness="1" CornerRadius="11" Padding="13" Margin="0,16,0,0">
@@ -282,12 +282,12 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
       </Border>
 
       <TextBlock x:Name="ClaudeInstructions" Grid.Row="3"
-                 Text="After Prepare Claude: open Customize > Plugins > Add > Add marketplace, then paste the copied marketplace and install Jev Model Router."
+                 Text="One click setup. If Claude Code CLI is missing, Jev Router installs it with WinGet. Restart or reload Claude Code after first install."
                  TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="10.5" LineHeight="16" Margin="0,14,0,0"/>
 
       <Grid Grid.Row="4" Margin="0,18,0,0">
        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-       <Button x:Name="PrepareClaudeButton" Content="Prepare Claude" Height="42" Style="{StaticResource BlueButton}"/>
+       <Button x:Name="PrepareClaudeButton" Content="Connect Claude" Height="42" Style="{StaticResource BlueButton}"/>
        <Button x:Name="OpenClaudeButton" Grid.Column="2" Content="Open Claude" Height="42" MinWidth="102" Style="{StaticResource SecondaryButton}"/>
       </Grid>
      </Grid>
@@ -375,15 +375,24 @@ try {
   $result=Install-CodexBridge -ApiKey $key
  } elseif($Name -eq 'Disconnect Codex'){
   $result=Remove-CodexBridge
+ } elseif($Name -eq 'Connect Claude'){
+  $key=Get-SavedTypeSafeKey
+  if(-not $key){throw 'Save a valid TypeSafe key first.'}
+  $result=Initialize-ClaudeIntegration -ApiKey $key
  } elseif($Name -eq 'Reset All'){
   $result=Reset-JevRouterAll
  } else {
   throw "Unknown action: $Name"
  }
+ $text = if($result -and $result.PSObject.Properties['Message']){
+  [string]$result.Message
+ } else {
+  ($result -join [Environment]::NewLine)
+ }
  [pscustomobject]@{
   Success=$true
   Action=$Name
-  Text=($result -join [Environment]::NewLine)
+  Text=$text
  }
 } catch {
  [pscustomobject]@{
@@ -434,7 +443,12 @@ $script:Timer.Add_Tick({
 
  if($result -and -not $result.Success){Err $result.Text}
  elseif($result -and $result.Action -eq 'Connect Codex'){[Windows.MessageBox]::Show($window,"Codex is configured. Restart Codex Desktop, then choose 'Jev Router' from its model picker.",'Codex connected','OK','Information')|Out-Null}
- elseif($result -and $result.Action -eq 'Reset All'){[Windows.MessageBox]::Show($window,"Jev Router data was reset. Codex was restored where a bridge backup was available, and Jev/TypeSafe credentials saved by this app were removed. If you added the Claude plugin to your Claude account, remove it from Customize > Plugins if you also want the plugin itself gone.",'JEV reset complete','OK','Information')|Out-Null}
+ elseif($result -and $result.Action -eq 'Connect Claude'){
+  $ClaudeInstructions.Text='Jev Model Router installed. Restart or reload the Claude Code session to activate it.'
+  $FooterStatus.Text='Claude plugin installed.'
+  [Windows.MessageBox]::Show($window,"Jev Model Router is installed for Claude Code. Restart or reload the Claude Code session to activate it.",'Claude connected','OK','Information')|Out-Null
+ }
+ elseif($result -and $result.Action -eq 'Reset All'){[Windows.MessageBox]::Show($window,"Jev Router data was reset. Codex was restored where a bridge backup was available, the Claude plugin was removed where possible, and Jev/TypeSafe credentials saved by this app were removed.",'JEV reset complete','OK','Information')|Out-Null}
 })
 
 $VerifyButton.Add_Click({
@@ -452,12 +466,13 @@ $ConnectCodexButton.Add_Click({
 })
 $DisconnectCodexButton.Add_Click({if([Windows.MessageBox]::Show($window,'Restore Codex configuration and remove Jev Codex Bridge?','Disconnect Codex','YesNo','Question') -eq 'Yes'){Background 'Disconnect Codex'}})
 $ResetButton.Add_Click({
- $msg='Reset everything configured by Jev Router? This restores Codex from the bridge backup when available, removes the Codex bridge, removes Jev/TypeSafe environment keys used for Claude, deletes the protected TypeSafe key saved by this app, and removes Jev keys from the bridge environment file. The Claude account plugin itself must still be removed from Customize > Plugins if you added it there.'
+ $msg='Reset everything configured by Jev Router? This restores Codex from the bridge backup when available, removes the Codex bridge, removes the Claude Jev plugin where possible, clears Jev/TypeSafe environment keys, deletes the protected TypeSafe key saved by this app, and removes Jev keys from the bridge environment file.'
  if([Windows.MessageBox]::Show($window,$msg,'Reset JEV','YesNo','Warning') -eq 'Yes'){Background 'Reset All'}
 })
 $PrepareClaudeButton.Add_Click({
- $key=Get-SavedTypeSafeKey;if(-not $key){Err 'Verify and save your TypeSafe API key first.';return}
- try{$r=Initialize-ClaudeIntegration -ApiKey $key;$ClaudeInstructions.Text='Marketplace copied: '+$r.Marketplace+[Environment]::NewLine+[Environment]::NewLine+'In Claude: Customize > Plugins > Add > Add marketplace > paste > install Jev Model Router.';$FooterStatus.Text='Claude opened and marketplace copied.'}catch{Err $_.Exception.Message}
+ if(-not(Get-SavedTypeSafeKey)){Err 'Verify and save your TypeSafe API key first.';return}
+ $q='This can install the official Claude Code CLI with WinGet if it is missing, add the Jev Model Router marketplace, install the plugin at user scope, and open Claude. Continue?'
+ if([Windows.MessageBox]::Show($window,$q,'Connect Claude','YesNo','Question') -eq 'Yes'){Background 'Connect Claude'}
 })
 $OpenClaudeButton.Add_Click({try{Start-Process 'claude://code'}catch{Err 'Claude Desktop could not be opened.'}})
 $RefreshButton.Add_Click({Refresh-Ui})
