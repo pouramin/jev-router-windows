@@ -231,11 +231,11 @@ const slides: SlideDefinition[] = [
         <div class="resource-spectrum panel">
           <div class="spectrum-labels"><span>خیلی سبک</span><span>مصرف منابع بالا</span></div>
           <div class="spectrum-line">
-            <span class="spectrum-stop light" style="left: 7%;"><b class="ltr">Laya</b><small class="ltr">322M–421M</small></span>
-            <span class="spectrum-stop mid" style="left: 29%;"><b class="ltr">JevK5</b><small class="ltr">4B / 9B</small></span>
-            <span class="spectrum-stop mid" style="left: 49%;"><b class="ltr">SemIf</b><small class="ltr">4B</small></span>
-            <span class="spectrum-stop heavy" style="left: 72%;"><b class="ltr">Nimble</b><small class="ltr">9B</small></span>
-            <span class="spectrum-stop max" style="left: 92%;"><b class="ltr">Open Alt</b><small class="ltr">0.6B–27B</small></span>
+            <span class="spectrum-stop light" style="left: 93%;"><b class="ltr">Laya</b><small class="ltr">322M–421M</small></span>
+            <span class="spectrum-stop mid" style="left: 71%;"><b class="ltr">JevK5</b><small class="ltr">4B / 9B</small></span>
+            <span class="spectrum-stop mid" style="left: 51%;"><b class="ltr">SemIf</b><small class="ltr">4B</small></span>
+            <span class="spectrum-stop heavy" style="left: 28%;"><b class="ltr">Nimble</b><small class="ltr">9B</small></span>
+            <span class="spectrum-stop max" style="left: 8%;"><b class="ltr">Open Alt</b><small class="ltr">0.6B–27B</small></span>
           </div>
         </div>
         <div class="alt-grid-5">
