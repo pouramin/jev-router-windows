@@ -50,7 +50,7 @@ jobs:
           Copy-Item src build\JevRouter\src -Recurse
           Copy-Item cli build\JevRouter\cli -Recurse
           Copy-Item docs build\JevRouter\docs -Recurse
-          Copy-Item START_JEV_ROUTER.bat, JEV_ROUTER_CLI.bat, install.ps1, README.md, README_EN.md, README_FA.md, SECURITY.md, THIRD_PARTY_NOTICES.md, LICENSE, VERSION build\JevRouter\
+          Copy-Item START_JEV_ROUTER.vbs, START_JEV_ROUTER.bat, JEV_ROUTER_CLI.bat, install.ps1, README.md, README_EN.md, README_FA.md, SECURITY.md, THIRD_PARTY_NOTICES.md, LICENSE, VERSION build\JevRouter\
           Compress-Archive -Path build\JevRouter -DestinationPath JevRouter-Windows-Portable.zip -Force
 
       - name: Smoke-test Windows launchers
@@ -100,6 +100,22 @@ jobs:
             throw 'ClaudeInstructions XAML control is missing.'
           }
 
+          $launcher = Get-Content .\START_JEV_ROUTER.vbs -Raw
+          if ($launcher -notmatch 'shell\.Run command, 0, False') {
+            throw 'Console-free VBScript launcher is not configured correctly.'
+          }
+
+          $coreSource = Get-Content .\src\RouterCore.psm1 -Raw
+          if ($coreSource -notmatch "'install','--key-file',\$script:BridgeEnvFile") {
+            throw 'Codex install must pass the key file explicitly.'
+          }
+          if ($coreSource -notmatch "Set-Content -Path \$script:BridgeEnvFile -Value \$content -Encoding ASCII") {
+            throw 'Codex key file must be written without a UTF-8 BOM.'
+          }
+          if ($coreSource -notmatch "'plugin','install',\$pluginId,'--scope','user'") {
+            throw 'Claude setup must install the plugin automatically.'
+          }
+
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
@@ -145,7 +161,7 @@ jobs:
           - TypeSafe API key verification and Windows DPAPI local storage.
           - No terminal interaction required for the normal GUI path.
 
-          Extract the ZIP and double-click START_JEV_ROUTER.bat.
+          Extract the ZIP and double-click START_JEV_ROUTER.vbs for a completely console-free launch. START_JEV_ROUTER.bat remains as a compatibility shim.
 
           This is an unsigned alpha build. Review SECURITY.md and THIRD_PARTY_NOTICES.md before using it with sensitive repositories.
           "@
