@@ -140,8 +140,23 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
      <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>
 
-    <Border Width="52" Height="52" CornerRadius="14" Background="#E8B94B" VerticalAlignment="Center">
-     <TextBlock Text="J" Foreground="#0C1016" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Border Width="58" Height="52" CornerRadius="14" Background="#F4F7FB" BorderBrush="#D9E2EC" BorderThickness="1" Padding="5" VerticalAlignment="Center">
+     <Viewbox Stretch="Uniform">
+      <Canvas Width="620" Height="520">
+       <Path Fill="#212E4E"
+             Data="M4710 8891 c-85 -18 -152 -76 -175 -155 -18 -60 -21 -486 -4 -564 13 -61 66 -127 123 -153 38 -17 78 -19 574 -19 l532 0 0 -1415 c0 -980 3 -1430 11 -1465 15 -68 72 -140 140 -174 l53 -26 464 0 464 0 -57 46 c-127 104 -257 310 -306 489 -21 74 -23 106 -27 433 -3 319 -5 354 -20 359 -111 37 -215 114 -272 203 -88 136 -96 332 -20 480 47 93 152 185 251 221 l59 22 0 131 c0 159 11 230 52 344 87 239 287 421 543 493 80 23 84 23 1028 28 l949 6 24 28 c26 31 31 79 11 112 -7 12 -127 133 -267 271 -223 218 -263 253 -320 279 l-65 30 -1855 1 c-1020 1 -1871 -1 -1890 -5z">
+        <Path.RenderTransform><MatrixTransform Matrix="0.1,0,0,-0.1,-410,936"/></Path.RenderTransform>
+       </Path>
+       <Path Fill="#008036"
+             Data="M7350 7920 c-194 -7 -227 -14 -324 -61 -83 -41 -148 -99 -201 -179 -75 -113 -87 -160 -93 -346 l-4 -161 47 -17 c75 -25 128 -60 189 -126 99 -108 131 -199 124 -352 -5 -91 -8 -105 -46 -182 -60 -121 -158 -204 -295 -250 -17 -6 -18 -24 -15 -348 l3 -343 28 -79 c39 -111 98 -206 181 -293 110 -117 214 -181 373 -230 l88 -28 842 -3 842 -3 3 -149 c3 -141 4 -150 27 -174 14 -15 42 -32 63 -38 50 -15 78 -2 183 88 44 38 204 174 355 303 151 128 285 245 298 258 25 27 30 94 11 137 -6 13 -50 58 -98 98 -317 272 -640 546 -661 561 -41 29 -95 22 -138 -17 l-37 -34 -3 -151 -3 -151 -615 0 c-410 0 -630 4 -658 11 -56 14 -114 62 -137 113 -18 39 -19 91 -19 1094 l0 1052 -42 0 c-24 0 -52 2 -63 3 -11 2 -103 1 -205 -3z">
+        <Path.RenderTransform><MatrixTransform Matrix="0.1,0,0,-0.1,-410,936"/></Path.RenderTransform>
+       </Path>
+       <Path Fill="#008036"
+             Data="M6553 6970 c-80 -19 -161 -91 -189 -169 -18 -49 -17 -154 1 -197 25 -60 73 -112 130 -140 48 -23 64 -26 134 -23 73 4 83 7 137 44 82 58 119 126 118 220 0 52 -6 81 -23 113 -61 118 -188 181 -308 152z">
+        <Path.RenderTransform><MatrixTransform Matrix="0.1,0,0,-0.1,-410,936"/></Path.RenderTransform>
+       </Path>
+      </Canvas>
+     </Viewbox>
     </Border>
 
     <StackPanel Grid.Column="1" Margin="15,1,0,0" VerticalAlignment="Center">
@@ -270,7 +285,6 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
        <RowDefinition Height="Auto"/>
        <RowDefinition Height="Auto"/>
        <RowDefinition Height="Auto"/>
-       <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
       <Grid>
@@ -308,9 +322,9 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
 
       <TextBlock x:Name="ClaudeInstructions" Grid.Row="3"
                  Text="One click setup. If Claude Code CLI is missing, Jev Router installs it with WinGet. Restart or reload Claude Code after first install."
-                 TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="10.5" LineHeight="16" Margin="0,14,0,0"/>
+                 Visibility="Collapsed"/>
 
-      <Grid Grid.Row="4" Margin="0,18,0,0">
+      <Grid Grid.Row="3" Margin="0,18,0,0">
        <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="8"/>
