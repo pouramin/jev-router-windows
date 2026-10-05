@@ -2,156 +2,229 @@
 
 [فارسی](README_FA.md) · **English** · [Main page](README.md)
 
-## What this project is
+## Overview
 
-**Jev Router for Windows** is a graphical setup and control panel aimed at people who want to use TypeSafe **Jev** with coding agents on Windows without manually editing configuration files or living in PowerShell.
+**Jev Router for Windows** is a graphical Windows control panel for connecting TypeSafe **Jev** to Codex and Claude Code without manually editing configuration files, managing environment variables, or working in PowerShell.
 
-The project focuses on two Windows workflows:
+Current integrations:
 
-- **Codex Desktop / Codex CLI** — automatic per-turn model and reasoning routing through the open-source `jev-codex-bridge` project.
-- **Claude Code in Claude Desktop** — automatic user-scope installation of the `Jev Model Router` plugin through Claude Code's supported plugin CLI. This is still a plugin integration, not the same transparent proxy used by Codex.
+- **Codex Desktop / Codex CLI** — automatic per-turn routing through the open-source `jev-codex-bridge`.
+- **Claude Code in Claude Desktop** — automatic user-scope installation of the `Jev Model Router` plugin through Claude Code's supported plugin CLI.
 
-That distinction is intentional. The UI tells the user exactly which integration is automatic and which one is plugin-assisted.
+Codex uses a transparent bridge/provider workflow. Claude uses a plugin workflow.
 
-## Who it is for
+## Current GUI
 
-The target user is someone who can download an app, paste a TypeSafe API key, and click a button — not someone who wants to maintain Node.js packages and configuration files by hand.
+The app currently provides:
+
+- Maximized startup.
+- Console-free launch through `START_JEV_ROUTER.vbs`.
+- TypeSafe API-key verification.
+- Windows DPAPI storage for the primary saved key.
+- **Clear saved key**.
+- One state-aware button per integration:
+  - **Connect Codex** ↔ **Disconnect Codex**
+  - **Connect Claude** ↔ **Disconnect Claude**
+- **Open Codex**.
+- **Open Claude**.
+- Live integration detection.
+- **Refresh status**.
+- **Reset JEV**.
+- Footer links to TunnelLab, GitHub, and pouramin.dev.
 
 ## Quick start
 
-### Portable alpha
-
-1. Download the latest Windows package from **Releases**.
+1. Download the latest Windows ZIP from **Releases**.
 2. Extract it.
-3. Double-click `START_JEV_ROUTER.vbs` for a console-free launch. The `.bat` file remains only as a compatibility shortcut.
+3. Double-click `START_JEV_ROUTER.vbs`.
 4. Paste your TypeSafe API key.
 5. Click **Verify & save**.
-6. Choose **Connect Codex** or **Connect Claude**.
+6. Connect Codex, Claude, or both.
+7. Restart or reopen the target application when prompted.
 
-No terminal interaction is required for normal setup. Some third-party prerequisites may be installed in the background through WinGet after the user confirms.
+Normal GUI setup does not require manual terminal work.
 
-## CLI setup
+## TypeSafe key handling
 
-The same setup is also available as an interactive PowerShell CLI. The first run asks for the TypeSafe API key with hidden input, verifies it, saves it with Windows DPAPI for the current user, and then asks which integration to configure.
+The app verifies the TypeSafe key before saving it.
 
-One-line install:
+The primary saved copy uses Windows **DPAPI** and is scoped to the current Windows user.
+
+The GUI provides:
+
+- **Verify & save** — verify and save the key.
+- **Clear saved key** — remove only the DPAPI-protected copy saved by Jev Router.
+- **Reset JEV** — remove integrations and credentials configured by this project.
+
+If Codex or Claude is already connected, clearing the saved key alone does not automatically disconnect that integration.
+
+## Codex
+
+### Connect Codex
+
+Jev Router can:
+
+1. Detect Codex, Git, Node.js, and Jev Bridge.
+2. Install Git and Node.js 24+ with WinGet when needed.
+3. Install `jev-codex-bridge`.
+4. Create the bridge credential file using Windows-safe encoding.
+5. Restrict its ACL where possible.
+6. Pass the key-file path explicitly to the bridge installer.
+7. Back up and update Codex configuration.
+8. Register the bridge background task.
+9. Make **Jev Router** available through Codex's model/provider UI.
+
+The upstream bridge reuses the user's existing Codex authentication. No OpenAI API key is requested.
+
+### Disconnect Codex
+
+After installation, the same button changes to **Disconnect Codex**.
+
+The app first attempts the upstream restore flow. If Codex's configuration has changed since installation and a full restore is unsafe, Jev Router removes only Jev-specific provider entries while preserving unrelated changes.
+
+It also removes the bridge service, global package, key file, and local bridge state.
+
+Restart Codex Desktop afterward to refresh its model list.
+
+## Claude Code
+
+### Connect Claude
+
+Jev Router:
+
+1. Sets `TYPESAFE_API_KEY` for the current Windows user.
+2. Detects the Claude Code CLI.
+3. Installs the official Claude Code CLI with WinGet if needed.
+4. Adds the marketplace:
+
+   `Mandrilsquad1441/jev-model-router`
+
+5. Installs:
+
+   `jev-model-router@jev-model-router`
+
+   at user scope.
+
+6. Opens Claude Desktop.
+
+This is a **PLUGIN** integration rather than the transparent bridge used by Codex.
+
+Restart or reload the Claude Code session after first installation if needed.
+
+### Disconnect Claude
+
+When the plugin is detected, the same button changes to **Disconnect Claude**.
+
+The app attempts to uninstall the plugin, remove the marketplace entry, and clear Jev/TypeSafe environment variables created for the integration.
+
+Restart Claude Desktop afterward to refresh plugin state.
+
+## Open-app shortcuts
+
+The GUI includes:
+
+- **Open Codex**
+- **Open Claude**
+
+The Codex shortcut tries a local deep link first and falls back to the web Codex entry point when required.
+
+## Reset JEV
+
+**Reset JEV** is the full cleanup action.
+
+It attempts to:
+
+- disconnect Codex,
+- restore or clean Codex configuration,
+- remove the Codex bridge,
+- remove the Claude plugin and marketplace entry where possible,
+- clear Jev/TypeSafe environment variables,
+- delete the DPAPI-protected TypeSafe key saved by Jev Router.
+
+## CLI
+
+A PowerShell CLI remains available.
+
+Bootstrap:
 
 ```powershell
 irm https://raw.githubusercontent.com/pouramin/jev-router-windows/main/install.ps1 | iex
 ```
 
-After the bootstrap finishes, open a new PowerShell window and run:
+Then:
 
 ```powershell
 jev-router
 ```
 
-The menu includes:
-
-```text
-1 - ChatGPT / Codex Desktop (Codex routing)
-2 - Claude / Claude Code
-3 - Both
-4 - Change TypeSafe API key
-5 - Refresh status
-6 - Reset Codex
-7 - Reset Claude
-8 - Reset everything
-0 - Exit
-```
-
-For Codex, the CLI performs the same bridge installation and persistent Windows configuration as the GUI, so the settings remain in effect when Codex Desktop is opened later.
-
-For Claude, the CLI now performs the plugin setup automatically: it installs the official Claude Code CLI with WinGet when needed, registers the Jev Model Router marketplace, installs the plugin at user scope, and opens Claude Desktop. Restart or reload the Claude Code session after the first install.
-
-## Codex integration
-
-The Codex path is the most automated path in the current alpha.
-
-When you click **Connect Codex**, the app can:
-
-1. Detect Git, Node.js, Codex, and the Jev bridge.
-2. Install Git and Node.js 24+ with WinGet when required.
-3. Install `ansidium/jev-codex-bridge` from its public GitHub repository.
-4. Store the TypeSafe key in the key file required by the bridge and restrict its Windows ACL.
-5. Run `jev-bridge install`, which backs up and configures Codex.
-6. Register the bridge's background Windows task.
-7. Leave Codex ready to use the **Jev Router** model/provider after the app is restarted.
-
-The upstream bridge reuses the user's existing Codex authentication; this project does not ask for an OpenAI API key.
-
-## Claude Code integration
-
-Claude Desktop exposes Claude Code in its graphical **Code** experience and supports plugins across the desktop app and Claude Code.
-
-In the current alpha, **Connect Claude**:
-
-1. Saves `TYPESAFE_API_KEY` as a user-level Windows environment variable for the plugin.
-2. Installs the official Claude Code CLI with WinGet when the `claude` command is missing.
-3. Registers the `Mandrilsquad1441/jev-model-router` marketplace.
-4. Installs `jev-model-router@jev-model-router` at user scope.
-5. Opens Claude Desktop. Restart or reload the Claude Code session once after the first install.
-
-This remains a **PLUGIN** integration. Jev Model Router recommends and delegates models inside Claude Code; it is not the transparent per-turn proxy used by the Codex bridge.
-
-## Reset / return to defaults
-
-Both the GUI and CLI include reset controls.
-
-- **Reset Codex** restores the Codex configuration from the bridge backup when available, removes the background bridge service/package, and removes Jev/TypeSafe keys from the bridge environment file.
-- **Reset Claude** removes the Jev Model Router plugin and marketplace where possible, then clears the Jev/TypeSafe Windows environment keys created by this project.
-- **Reset everything** also deletes the DPAPI-protected TypeSafe key saved by Jev Router.
-
-## TypeSafe key handling
-
-The key entered into the app is saved with Windows **DPAPI**, scoped to the current Windows user.
-
-Two integrations currently require less isolated compatibility storage:
-
-- Codex Bridge uses `~/.jev-router.env` because the upstream bridge expects a key file. The app tries to restrict that file to the signed-in Windows account.
-- Claude plugin compatibility uses a user-level `TYPESAFE_API_KEY` environment variable in this alpha.
-
-Read [SECURITY.md](SECURITY.md) before using the alpha on a shared PC or with sensitive repositories.
+The CLI can configure Codex, Claude, both integrations, change the key, refresh status, and reset integrations.
 
 ## Privacy
 
-A router cannot classify a task without receiving routing context. TypeSafe therefore receives text needed to make the Jev decision. The provider still receives the original coding-agent request as usual.
+TypeSafe receives the routing context needed to classify a request and choose a route.
 
-The exact context and retention behavior depends on TypeSafe and the upstream integration. Review their documentation before using private code.
+The selected provider still receives the original coding-agent request as part of the normal workflow.
+
+Review TypeSafe and upstream integration documentation before using sensitive private code.
+
+## Security
+
+The integrations currently require different credential-storage mechanisms:
+
+- Jev Router primary key: Windows DPAPI.
+- Codex Bridge: local key file with restricted ACL where possible.
+- Claude plugin: user-level `TYPESAFE_API_KEY` environment variable.
+
+See [SECURITY.md](SECURITY.md).
 
 ## Project status
 
-This is an **alpha** Windows usability layer. The project intentionally relies on upstream open-source integrations rather than pretending to own their protocol compatibility.
+**Alpha**
 
-Current scope:
+Current scope includes:
 
 - Windows 10 / 11
-- TypeSafe API key verification
-- Local DPAPI secret storage
-- One-click-ish Codex Bridge installation and removal
-- Codex background-service setup
-- Automatic Claude Code plugin marketplace registration and user-scope install
-- Detection/status UI
+- Maximized WPF UI
+- Console-free launcher
+- TypeSafe verification
+- DPAPI key storage
+- Saved-key removal
+- Connect/disconnect toggle buttons
+- Codex Bridge install/remove
+- Codex fallback config cleanup
+- Codex background task setup
+- Automatic Claude Code CLI installation
+- Automatic Claude marketplace registration
+- Automatic Claude plugin install/remove
+- Open Codex / Open Claude
+- Status detection
+- Footer links
 - Portable package
-- GitHub Actions release packaging
+- GitHub Actions build, smoke-test, and release pipeline
 
-Planned work:
+Planned:
 
 - Signed Windows installer
 - Better Claude plugin status detection
-- A fully supported Claude automatic-routing path if/when a stable desktop extension point can safely change the active model per turn
-- In-app decision history and router health
-- Update channel for this control panel itself
+- Router decision history
+- Router health UI
+- Self-update channel
 
 ## Build from source
-
-The portable UI is written in Windows PowerShell + WPF so a clean Windows machine can launch it without a separate application runtime.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\JevRouter.ps1
 ```
 
-The recommended `START_JEV_ROUTER.vbs` launcher starts the WPF interface through a hidden Windows PowerShell process, so no console window is created.
+Normal portable launch:
+
+`START_JEV_ROUTER.vbs`
+
+## Links
+
+- Website: https://pouramin.dev/
+- GitHub: https://github.com/pouramin
+- TunnelLab: https://www.youtube.com/@tunnellab
 
 ## Third-party projects
 
