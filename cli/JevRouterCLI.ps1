@@ -118,28 +118,17 @@ function Setup-Claude {
     if (-not $key) { $key = Ensure-TypeSafeKey }
 
     Write-Host ''
-    Write-Host 'Preparing Claude Code / Claude Desktop...' -ForegroundColor Cyan
+    Write-Host 'Connecting Claude Code...' -ForegroundColor Cyan
     $result = Initialize-ClaudeIntegration -ApiKey $key
 
-    Write-Host 'TypeSafe key was added to your Windows user environment for the plugin.' -ForegroundColor Green
-    Write-Host ('Marketplace copied to clipboard: ' + $result.Marketplace) -ForegroundColor Gray
-    Write-Host ''
-    Write-Host 'One Claude security confirmation is still required:' -ForegroundColor Yellow
-    Write-Host '  1. Claude Desktop opens to Code.' -ForegroundColor Gray
-    Write-Host '  2. Open Customize > Plugins > Add > Add marketplace.' -ForegroundColor Gray
-    Write-Host '  3. Paste the copied marketplace and add Jev Model Router.' -ForegroundColor Gray
-    Write-Host '  4. Restart the Code session.' -ForegroundColor Gray
-    Write-Host ''
-    Read-Host 'After you add the plugin in Claude, press Enter here to verify it' | Out-Null
-
-    $status = Get-SystemStatus
-    if ($status.ClaudePlugin) {
-        Write-Host 'Claude is configured. The plugin is now detected locally.' -ForegroundColor Green
-        Write-Host 'It will be available in Claude Code sessions using this Claude account.' -ForegroundColor Green
-    } else {
-        Write-Host 'The plugin is not detected yet.' -ForegroundColor Yellow
-        Write-Host 'You can finish the install later from Claude > Customize > Plugins. The TypeSafe key preparation is already saved.' -ForegroundColor Gray
+    foreach ($line in $result.Log) {
+        if ($line) { Write-Host ('  ' + $line) -ForegroundColor DarkGray }
     }
+
+    Write-Host ''
+    Write-Host 'Claude is configured.' -ForegroundColor Green
+    Write-Host 'Jev Model Router was installed at user scope.' -ForegroundColor Green
+    Write-Host 'Restart or reload the Claude Code session to activate it.' -ForegroundColor Gray
 }
 
 function Reset-Codex {
@@ -154,11 +143,12 @@ function Reset-Codex {
 
 function Reset-Claude {
     Write-Host ''
-    $go = Read-Host 'Remove Jev/TypeSafe environment keys used by the Claude integration? [y/N]'
+    $go = Read-Host 'Remove the Claude Jev plugin and its Jev/TypeSafe environment keys? [y/N]'
     if ($go.Trim().ToLowerInvariant() -ne 'y') { return }
-    Remove-ClaudeIntegration
-    Write-Host 'Claude Jev environment keys were removed.' -ForegroundColor Green
-    Write-Host 'If you added the plugin to your Claude account, remove it from Customize > Plugins to remove the plugin itself.' -ForegroundColor Yellow
+    foreach ($line in (Remove-ClaudeIntegration)) {
+        if ($line) { Write-Host ('  ' + $line) -ForegroundColor DarkGray }
+    }
+    Write-Host 'Claude Jev integration was removed where possible.' -ForegroundColor Green
 }
 
 function Reset-All {
