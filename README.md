@@ -13,7 +13,7 @@
 <p align="center">
   <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square&logo=windows">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
-  <img alt="Status" src="https://img.shields.io/badge/status-alpha-f0c35a?style=flat-square">
+  <img alt="Status" src="https://img.shields.io/badge/status-stable-2ea44f?style=flat-square">
 </p>
 
 ## What this project is
@@ -57,17 +57,17 @@ Normal GUI setup does not require manual terminal work.
 
 ## Quick start
 
-### Portable alpha
+### Stable portable release
 
 1. Download the latest Windows ZIP from **Releases**.
 2. Extract the archive.
-3. Double-click `START_JEV_ROUTER.vbs`.
+3. Double-click `Jev Router.vbs`.
 4. Paste your TypeSafe API key.
 5. Click **Verify & save**.
 6. Click **Connect Codex** and/or **Connect Claude**.
 7. Restart or reopen the target app if the UI asks you to refresh its model/plugin state.
 
-The recommended VBS launcher starts the WPF application without opening a visible PowerShell or CMD window.
+The stable ZIP contains a single visible launcher named `Jev Router.vbs`, which starts the WPF application without opening a visible PowerShell or CMD window.
 
 ## TypeSafe API key
 
@@ -201,11 +201,11 @@ The app uses several storage mechanisms because the upstream integrations have d
 - Codex Bridge currently requires a local key file.
 - Claude plugin compatibility currently uses a user-level environment variable.
 
-Read [SECURITY.md](SECURITY.md) before using the alpha on shared Windows accounts or highly sensitive repositories.
+Read [SECURITY.md](SECURITY.md) before using the app on shared Windows accounts or highly sensitive repositories.
 
 ## Project status
 
-This project is currently **alpha**.
+The current public release is **v1.0.0 Stable**.
 
 Current scope:
 
@@ -225,7 +225,7 @@ Current scope:
 - Open Codex / Open Claude shortcuts
 - Integration status detection
 - TunnelLab / GitHub / website footer links
-- Portable Windows package
+- Slim portable Windows package with only the runtime files and required legal notices
 - GitHub Actions build, smoke test, and rolling release
 
 Planned work:
@@ -243,9 +243,11 @@ The GUI is written in Windows PowerShell + WPF.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\JevRouter.ps1
 ```
 
-For normal portable use, launch:
+For the stable portable ZIP, launch:
 
-`START_JEV_ROUTER.vbs`
+`Jev Router.vbs`
+
+The repository still keeps the source/development launcher separately.
 
 ## Links
 
