@@ -327,7 +327,8 @@ $PrepareClaudeButton=C 'PrepareClaudeButton'; $OpenClaudeButton=C 'OpenClaudeBut
 $RefreshButton=C 'RefreshButton'; $ResetButton=C 'ResetButton'; $FooterStatus=C 'FooterStatus'; $ClaudeInstructions=C 'ClaudeInstructions'
 
 $script:Busy=$false
-$script:ActiveJob=$null
+$script:ActivePowerShell=$null
+$script:ActiveAsync=$null
 $script:Timer=New-Object Windows.Threading.DispatcherTimer
 $script:Timer.Interval=[TimeSpan]::FromMilliseconds(400)
 
@@ -354,33 +355,81 @@ function Refresh-Ui {
 }
 
 function Background([string]$Action) {
- if($script:Busy){return}; Busy $true $Action; $m=Join-Path $PSScriptRoot 'RouterCore.psm1'
- $script:ActiveJob=Start-Job -ArgumentList $m,$Action -ScriptBlock {
-  param($Module,$Name); Import-Module $Module -Force
-  try {
-   if($Name -eq 'Connect Codex'){
-    $key=Get-SavedTypeSafeKey; if(-not $key){throw 'Save a valid TypeSafe key first.'}
-    $r=Install-CodexBridge -ApiKey $key
-   } elseif($Name -eq 'Disconnect Codex'){
-    $r=Remove-CodexBridge
-   } elseif($Name -eq 'Reset All'){
-    $r=Reset-JevRouterAll
-   } else {
-    throw "Unknown action: $Name"
-   }
-   [pscustomobject]@{Success=$true;Action=$Name;Text=($r -join [Environment]::NewLine)}
-  } catch { [pscustomobject]@{Success=$false;Action=$Name;Text=$_.Exception.Message} }
+ if($script:Busy){return}
+ Busy $true $Action
+ $m=Join-Path $PSScriptRoot 'RouterCore.psm1'
+
+ $worker=@'
+param($Module,$Name)
+$ErrorActionPreference='Stop'
+Import-Module $Module -Force
+try {
+ if($Name -eq 'Connect Codex'){
+  $key=Get-SavedTypeSafeKey
+  if(-not $key){throw 'Save a valid TypeSafe key first.'}
+  $result=Install-CodexBridge -ApiKey $key
+ } elseif($Name -eq 'Disconnect Codex'){
+  $result=Remove-CodexBridge
+ } elseif($Name -eq 'Reset All'){
+  $result=Reset-JevRouterAll
+ } else {
+  throw "Unknown action: $Name"
  }
- $script:Timer.Start()
+ [pscustomobject]@{
+  Success=$true
+  Action=$Name
+  Text=($result -join [Environment]::NewLine)
+ }
+} catch {
+ [pscustomobject]@{
+  Success=$false
+  Action=$Name
+  Text=$_.Exception.Message
+ }
+}
+'@
+
+ try {
+  $script:ActivePowerShell=[PowerShell]::Create()
+  [void]$script:ActivePowerShell.AddScript($worker).AddArgument($m).AddArgument($Action)
+  $script:ActiveAsync=$script:ActivePowerShell.BeginInvoke()
+  $script:Timer.Start()
+ } catch {
+  if($script:ActivePowerShell){
+   $script:ActivePowerShell.Dispose()
+   $script:ActivePowerShell=$null
+  }
+  $script:ActiveAsync=$null
+  Busy $false
+  Err $_.Exception.Message
+ }
 }
 
 $script:Timer.Add_Tick({
- if(-not $script:ActiveJob -or $script:ActiveJob.State -notin @('Completed','Failed','Stopped')){return}
- $r=Receive-Job $script:ActiveJob -ErrorAction SilentlyContinue|Select-Object -Last 1
- Remove-Job $script:ActiveJob -Force -ErrorAction SilentlyContinue; $script:ActiveJob=$null; $script:Timer.Stop(); Busy $false; Refresh-Ui
- if($r -and -not $r.Success){Err $r.Text}
- elseif($r -and $r.Action -eq 'Connect Codex'){[Windows.MessageBox]::Show($window,"Codex is configured. Restart Codex Desktop, then choose 'Jev Router' from its model picker.",'Codex connected','OK','Information')|Out-Null}
- elseif($r -and $r.Action -eq 'Reset All'){[Windows.MessageBox]::Show($window,"Jev Router data was reset. Codex was restored where a bridge backup was available, and Jev/TypeSafe credentials saved by this app were removed. If you added the Claude plugin to your Claude account, remove it from Customize > Plugins if you also want the plugin itself gone.",'JEV reset complete','OK','Information')|Out-Null}
+ if(-not $script:ActivePowerShell -or -not $script:ActiveAsync -or -not $script:ActiveAsync.IsCompleted){return}
+
+ $result=$null
+ try {
+  $items=$script:ActivePowerShell.EndInvoke($script:ActiveAsync)
+  $result=@($items)|Select-Object -Last 1
+ } catch {
+  $result=[pscustomobject]@{
+   Success=$false
+   Action='Background task'
+   Text=$_.Exception.Message
+  }
+ } finally {
+  try{$script:ActivePowerShell.Dispose()}catch{}
+  $script:ActivePowerShell=$null
+  $script:ActiveAsync=$null
+  $script:Timer.Stop()
+  Busy $false
+  Refresh-Ui
+ }
+
+ if($result -and -not $result.Success){Err $result.Text}
+ elseif($result -and $result.Action -eq 'Connect Codex'){[Windows.MessageBox]::Show($window,"Codex is configured. Restart Codex Desktop, then choose 'Jev Router' from its model picker.",'Codex connected','OK','Information')|Out-Null}
+ elseif($result -and $result.Action -eq 'Reset All'){[Windows.MessageBox]::Show($window,"Jev Router data was reset. Codex was restored where a bridge backup was available, and Jev/TypeSafe credentials saved by this app were removed. If you added the Claude plugin to your Claude account, remove it from Customize > Plugins if you also want the plugin itself gone.",'JEV reset complete','OK','Information')|Out-Null}
 })
 
 $VerifyButton.Add_Click({
@@ -403,10 +452,22 @@ $ResetButton.Add_Click({
 })
 $PrepareClaudeButton.Add_Click({
  $key=Get-SavedTypeSafeKey;if(-not $key){Err 'Verify and save your TypeSafe API key first.';return}
- try{$r=Prepare-ClaudeIntegration -ApiKey $key;$ClaudeInstructions.Text='Marketplace copied: '+$r.Marketplace+[Environment]::NewLine+[Environment]::NewLine+'In Claude: Customize > Plugins > Add > Add marketplace > paste > install Jev Model Router.';$FooterStatus.Text='Claude opened and marketplace copied.'}catch{Err $_.Exception.Message}
+ try{$r=Initialize-ClaudeIntegration -ApiKey $key;$ClaudeInstructions.Text='Marketplace copied: '+$r.Marketplace+[Environment]::NewLine+[Environment]::NewLine+'In Claude: Customize > Plugins > Add > Add marketplace > paste > install Jev Model Router.';$FooterStatus.Text='Claude opened and marketplace copied.'}catch{Err $_.Exception.Message}
 })
 $OpenClaudeButton.Add_Click({try{Start-Process 'claude://code'}catch{Err 'Claude Desktop could not be opened.'}})
 $RefreshButton.Add_Click({Refresh-Ui})
-$window.Add_Closed({if($script:ActiveJob){Stop-Job $script:ActiveJob -ErrorAction SilentlyContinue;Remove-Job $script:ActiveJob -Force -ErrorAction SilentlyContinue}})
+$window.Add_Closed({
+ $script:Timer.Stop()
+ if($script:ActivePowerShell){
+  try{
+   if($script:ActiveAsync -and -not $script:ActiveAsync.IsCompleted){
+    $script:ActivePowerShell.Stop()
+   }
+  }catch{}
+  try{$script:ActivePowerShell.Dispose()}catch{}
+  $script:ActivePowerShell=$null
+  $script:ActiveAsync=$null
+ }
+})
 Refresh-Ui
 [void]$window.ShowDialog()
