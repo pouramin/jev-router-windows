@@ -1,5 +1,5 @@
 #requires -Version 5.1
-param([switch]$SelfTest)
+param([switch]$SelfTest,[switch]$XamlTest)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -587,6 +587,13 @@ $ResetButton.Add_Click({
  if([Windows.MessageBox]::Show($window,$msg,'Reset JEV','YesNo','Warning') -eq 'Yes'){Background 'Reset All'}
 })
 $RefreshButton.Add_Click({Refresh-Ui})
+
+if($XamlTest){
+ Write-Output 'XAMLTEST_OK'
+ try{$window.Close()}catch{}
+ exit 0
+}
+
 $window.Add_Closed({
  $script:Timer.Stop()
  if($script:ActivePowerShell){
