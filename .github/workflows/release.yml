@@ -61,6 +61,11 @@ jobs:
             throw "JevRouter.ps1 self-test failed with exit code $LASTEXITCODE."
           }
 
+          powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\src\JevRouter.ps1 -XamlTest
+          if ($LASTEXITCODE -ne 0) {
+            throw "JevRouter.ps1 XAML test failed with exit code $LASTEXITCODE."
+          }
+
           $module = Resolve-Path .\src\RouterCore.psm1
           $warnings = @()
           Import-Module $module -Force -WarningVariable warnings -WarningAction SilentlyContinue
@@ -100,13 +105,27 @@ jobs:
             throw 'ClaudeInstructions XAML control is missing.'
           }
 
-          foreach ($control in @('ClearKeyButton','DisconnectClaudeButton')) {
+          foreach ($control in @('ClearKeyButton','CodexToggleButton','OpenCodexButton','ClaudeToggleButton','OpenClaudeButton','YouTubeButton','GitHubButton','WebsiteButton')) {
             if ($guiSource -notmatch ('x:Name="' + [regex]::Escape($control) + '"')) {
               throw "Required GUI control is missing: $control"
             }
           }
           if ($guiSource -notmatch [regex]::Escape("Background 'Disconnect Claude'")) {
             throw 'Claude disconnect action is not wired to the background worker.'
+          }
+          if ($guiSource -notmatch [regex]::Escape("Background 'Disconnect Codex'")) {
+            throw 'Codex disconnect action is not wired to the toggle button.'
+          }
+          if ($guiSource -notmatch 'WindowState="Maximized"') {
+            throw 'GUI must open maximized.'
+          }
+          if ($guiSource -notmatch [regex]::Escape("Start-Process 'codex://threads/new'")) {
+            throw 'Open Codex button is not wired to the Codex deep link.'
+          }
+          foreach ($url in @('https://www.youtube.com/@tunnellab','https://github.com/pouramin','https://pouramin.dev/')) {
+            if ($guiSource -notmatch [regex]::Escape($url)) {
+              throw "Footer social link is missing: $url"
+            }
           }
           if ($guiSource -notmatch [regex]::Escape('Remove-SavedTypeSafeKey')) {
             throw 'Clear saved key control is not wired to DPAPI key removal.'
