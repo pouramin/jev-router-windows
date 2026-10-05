@@ -118,3 +118,37 @@ html, body {
   }
   .language-switch { left: 12px; }
 }
+
+
+.origin-lower-grid,
+.system-compare,
+.alt-grid-5,
+.resource-spectrum,
+.alt-card {
+  direction: rtl;
+}
+
+.founder-card,
+.system-card,
+.alt-card {
+  text-align: right;
+}
+
+.alt-head {
+  direction: rtl;
+}
+
+.alt-card .ltr,
+.alt-card a.ltr,
+.spectrum-stop .ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.resource-spectrum .spectrum-line {
+  direction: ltr;
+}
+
+.resource-spectrum .spectrum-labels {
+  direction: rtl;
+}
