@@ -194,6 +194,61 @@ const slides: SlideDefinition[] = [
         <div class="pill-row"><span class="pill">Next topic</span><span class="pill gold">rule-based routing</span><span class="pill">Laya</span></div>
       </div>`,
     note: 'JEV fits inside agents and automation systems; it does not replace Claude or GPT.'
+
+  },
+  {
+    kicker: 'Free<br>Open Source<br>Alternatives',
+    corner: 'Light → Heavy',
+    titleHtml: '5 Free <span class="highlight-gold">Alternatives</span> to JEV',
+    subtitleHtml: '<span class="highlight-blue">Open-source routing / decision models</span> with different resource needs',
+    bodyHtml: `
+      <div class="content alt-slide">
+        <div class="callout">From <strong>CPU-friendly</strong> options to <strong>heavy research-grade routers</strong>.</div>
+        <div class="resource-spectrum panel">
+          <div class="spectrum-labels"><span>Very light</span><span>Resource intensive</span></div>
+          <div class="spectrum-line">
+            <span class="spectrum-stop light" style="left: 7%;"><b>Laya</b><small>322M–421M</small></span>
+            <span class="spectrum-stop mid" style="left: 29%;"><b>JevK5</b><small>4B / 9B</small></span>
+            <span class="spectrum-stop mid" style="left: 49%;"><b>SemIf</b><small>4B</small></span>
+            <span class="spectrum-stop heavy" style="left: 72%;"><b>Nimble</b><small>9B</small></span>
+            <span class="spectrum-stop max" style="left: 92%;"><b>Open Alt</b><small>0.6B–27B</small></span>
+          </div>
+        </div>
+        <div class="alt-grid-5">
+          <div class="card alt-card">
+            <div class="alt-head"><div>${icon('bolt','green')}</div><div><h3>Laya</h3><span class="resource-pill green">Very low</span></div></div>
+            <p><strong>Model size:</strong> 322M–421M</p>
+            <p><strong>Minimum sensible runtime:</strong> CPU or about 2–3GB GPU memory</p>
+            <p><strong>GitHub:</strong> <a href="https://github.com/haddock-development/laya_new" target="_blank" rel="noopener">haddock-development/laya_new</a></p>
+          </div>
+          <div class="card alt-card">
+            <div class="alt-head"><div>${icon('route','blue')}</div><div><h3>JevK5</h3><span class="resource-pill blue">Medium</span></div></div>
+            <p><strong>Model size:</strong> 4B / 9B</p>
+            <p><strong>Minimum sensible runtime:</strong> CPU with GGUF or about 9GB VRAM for 4B BF16</p>
+            <p><strong>GitHub:</strong> <a href="https://github.com/allebee/jevk5" target="_blank" rel="noopener">allebee/jevk5</a></p>
+          </div>
+          <div class="card alt-card">
+            <div class="alt-head"><div>${icon('chart','blue')}</div><div><h3>SemIf</h3><span class="resource-pill blue">Medium</span></div></div>
+            <p><strong>Model size:</strong> 4B</p>
+            <p><strong>Minimum sensible runtime:</strong> CPU with GGUF or about 10–12GB VRAM</p>
+            <p><strong>GitHub:</strong> <a href="https://github.com/stevewithington/semif" target="_blank" rel="noopener">stevewithington/semif</a></p>
+          </div>
+          <div class="card alt-card">
+            <div class="alt-head"><div>${icon('brain','gold')}</div><div><h3>Bespoke Nimble</h3><span class="resource-pill gold">High</span></div></div>
+            <p><strong>Model size:</strong> 9B</p>
+            <p><strong>Minimum sensible runtime:</strong> Strong GPU or Apple Silicon with lots of RAM</p>
+            <p><strong>GitHub:</strong> <a href="https://github.com/bespokelabsai/nimble" target="_blank" rel="noopener">bespokelabsai/nimble</a></p>
+          </div>
+          <div class="card alt-card alt-card-wide">
+            <div class="alt-head"><div>${icon('gear','red')}</div><div><h3>Open Alternative to Jev</h3><span class="resource-pill red">Variable → very high</span></div></div>
+            <p><strong>Model size:</strong> 0.6B–27B</p>
+            <p><strong>Minimum sensible runtime:</strong> From a normal system up to about 35GB GPU memory</p>
+            <p><strong>GitHub:</strong> <a href="https://github.com/ikermoel/open-alternative-jev" target="_blank" rel="noopener">ikermoel/open-alternative-jev</a></p>
+          </div>
+        </div>
+      </div>`,
+    note: 'This last slide compares five free alternatives to JEV, from lightweight CPU-friendly options like Laya to much heavier research-grade systems.'
+
   }
 ];
 
