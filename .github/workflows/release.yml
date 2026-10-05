@@ -62,9 +62,42 @@ jobs:
           }
 
           $module = Resolve-Path .\src\RouterCore.psm1
-          powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Import-Module '$module' -Force; Initialize-JevRouterStorage; Get-JevRouterPaths | Out-Null"
-          if ($LASTEXITCODE -ne 0) {
-            throw "RouterCore module self-test failed with exit code $LASTEXITCODE."
+          $warnings = @()
+          Import-Module $module -Force -WarningVariable warnings -WarningAction SilentlyContinue
+          if ($warnings.Count -gt 0) {
+            throw "RouterCore emitted import warnings: $($warnings -join ' | ')"
+          }
+
+          Initialize-JevRouterStorage
+          Get-JevRouterPaths | Out-Null
+
+          $public = @(
+            'Initialize-JevRouterStorage',
+            'Save-TypeSafeKey',
+            'Get-SavedTypeSafeKey',
+            'Remove-SavedTypeSafeKey',
+            'Get-JevRouterPaths',
+            'Test-TypeSafeApiKey',
+            'Get-SystemStatus',
+            'Install-CodexBridge',
+            'Remove-CodexBridge',
+            'Initialize-ClaudeIntegration',
+            'Remove-ClaudeIntegration',
+            'Reset-JevRouterAll',
+            'Get-CodexBridgeStatusText'
+          )
+          foreach ($name in $public) {
+            if (-not (Get-Command $name -ErrorAction SilentlyContinue)) {
+              throw "Expected public RouterCore command is missing: $name"
+            }
+          }
+
+          $guiSource = Get-Content .\src\JevRouter.ps1 -Raw
+          if ($guiSource -match '\bStart-Job\b') {
+            throw 'GUI path must not use Start-Job because it can spawn a visible PowerShell host.'
+          }
+          if ($guiSource -notmatch 'x:Name="ClaudeInstructions"') {
+            throw 'ClaudeInstructions XAML control is missing.'
           }
 
       - name: Upload workflow artifact
