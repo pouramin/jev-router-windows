@@ -106,13 +106,13 @@ jobs:
           }
 
           $coreSource = Get-Content .\src\RouterCore.psm1 -Raw
-          if ($coreSource -notmatch "'install','--key-file',\$script:BridgeEnvFile") {
+          if ($coreSource -notmatch [regex]::Escape("'install','--key-file',`$script:BridgeEnvFile")) {
             throw 'Codex install must pass the key file explicitly.'
           }
-          if ($coreSource -notmatch "Set-Content -Path \$script:BridgeEnvFile -Value \$content -Encoding ASCII") {
+          if ($coreSource -notmatch [regex]::Escape("Set-Content -Path `$script:BridgeEnvFile -Value `$content -Encoding ASCII")) {
             throw 'Codex key file must be written without a UTF-8 BOM.'
           }
-          if ($coreSource -notmatch "'plugin','install',\$pluginId,'--scope','user'") {
+          if ($coreSource -notmatch [regex]::Escape("'plugin','install',`$pluginId,'--scope','user'")) {
             throw 'Claude setup must install the plugin automatically.'
           }
 
