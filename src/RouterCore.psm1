@@ -363,7 +363,7 @@ function Remove-CodexBridge {
     return $log
 }
 
-function Prepare-ClaudeIntegration {
+function Initialize-ClaudeIntegration {
     param([Parameter(Mandatory)][string]$ApiKey)
     [Environment]::SetEnvironmentVariable('TYPESAFE_API_KEY', $ApiKey.Trim(), 'User')
     $marketplace = 'Mandrilsquad1441/jev-model-router'
@@ -424,4 +424,18 @@ function Get-CodexBridgeStatusText {
     catch { return "Installed, status unavailable: $($_.Exception.Message)" }
 }
 
-Export-ModuleMember -Function *
+Export-ModuleMember -Function @(
+    'Initialize-JevRouterStorage',
+    'Save-TypeSafeKey',
+    'Get-SavedTypeSafeKey',
+    'Remove-SavedTypeSafeKey',
+    'Get-JevRouterPaths',
+    'Test-TypeSafeApiKey',
+    'Get-SystemStatus',
+    'Install-CodexBridge',
+    'Remove-CodexBridge',
+    'Initialize-ClaudeIntegration',
+    'Remove-ClaudeIntegration',
+    'Reset-JevRouterAll',
+    'Get-CodexBridgeStatusText'
+)
