@@ -64,7 +64,7 @@
 
 </div>
 
-`START_JEV_ROUTER.vbs`
+`Jev Router.vbs`
 
 <div dir="rtl" align="right">
 
@@ -266,7 +266,9 @@ jev-router
 
 ## وضعیت پروژه
 
-پروژه در حال حاضر در مرحله‌ی Alpha است.
+نسخه‌ی عمومی فعلی پروژه پایدار است:
+
+`v1.0.0 Stable`
 
 قابلیت‌های فعلی:
 
@@ -287,7 +289,7 @@ jev-router
 - دکمه‌های بازکردن کدکس و کلاد
 - تشخیص وضعیت Integrationها
 - لینک مستقیم TunnelLab، GitHub و سایت
-- پکیج Portable
+- پکیج Portable سبک که فقط فایل‌های لازم برای اجرا و فایل‌های حقوقی موردنیاز رو داخل ZIP نگه می‌داره
 - Build، Smoke Test و Release خودکار با GitHub Actions
 
 موارد برنامه‌ریزی‌شده:
@@ -316,7 +318,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\JevRouter.ps1
 
 <div dir="rtl" align="right">
 
-برای اجرای معمول نسخه‌ی Portable از فایل زیر استفاده کن:
+برای اجرای نسخه‌ی Stable داخل ZIP از فایل زیر استفاده کن:
 
 </div>
 
