@@ -6,37 +6,223 @@
 
 ## این پروژه چیه؟
 
-پروژه‌ی **Jev Router for Windows** یک برنامه‌ی گرافیکی برای راه‌اندازی و مدیریت اتصال **TypeSafe Jev** به ابزارهای Coding Agent روی Windows است؛ هدف اینه که کاربر عادی مجبور نباشه با PowerShell، فایل‌های config، متغیرهای محیطی و نصب دستی packageها درگیر بشه.
+پروژه‌ی
 
-نسخه‌ی فعلی روی 2 مسیر تمرکز داره:
+`Jev Router for Windows`
 
-- برای **Codex Desktop / Codex CLI**، مسیریابی خودکار هر Turn با استفاده از پروژه‌ی متن‌باز `jev-codex-bridge` راه‌اندازی می‌شه.
-- برای **Claude Code داخل Claude Desktop**، برنامه نصب `Jev Model Router` رو با CLI رسمی Claude Code به‌صورت خودکار انجام می‌ده. این مسیر همچنان Plugin integration است و مثل Codex یک Transparent Proxy برای هر Turn نیست.
+یک پنل گرافیکی برای ویندوزه که اتصال
 
-این تفاوت داخل خود رابط برنامه هم واضح نمایش داده می‌شه؛ بخش Codex با برچسب `AUTOMATIC` و بخش Claude با برچسب `PLUGIN` مشخص شده.
+`TypeSafe Jev`
 
-## برای چه کاربری ساخته شده؟
+به
 
-مخاطب اصلی کسیه که بتونه یک برنامه رو دانلود کنه، `TypeSafe API key` رو Paste کنه و روی یک دکمه کلیک کنه. کاربر نباید برای استفاده‌ی معمول مجبور باشه `Node.js`، `npm` یا فایل‌های config رو دستی مدیریت کنه.
+`Codex`
 
-## راه‌اندازی سریع
+و
 
-### نسخه‌ی Portable Alpha
+`Claude Code`
 
-1. آخرین فایل Windows رو از بخش **Releases** دانلود کن.
+رو ساده می‌کنه؛ بدون اینکه کاربر برای استفاده‌ی عادی مجبور باشه فایل‌های تنظیمات رو دستی ویرایش کنه، متغیر محیطی بسازه یا با پاورشل درگیر بشه.
+
+نسخه‌ی فعلی 2 مسیر اصلی داره:
+
+- برای کدکس، مسیریابی خودکار هر درخواست از طریق پروژه‌ی متن‌باز
+
+`jev-codex-bridge`
+
+انجام می‌شه.
+
+- برای کلاد کد، نصب و حذف افزونه‌ی
+
+`Jev Model Router`
+
+با رابط رسمی افزونه‌های کلاد کد به‌صورت خودکار انجام می‌شه.
+
+این 2 مسیر از نظر فنی یکی نیستن؛ کدکس از Bridge و Provider استفاده می‌کنه، ولی کلاد از Plugin.
+
+## رابط فعلی برنامه
+
+نسخه‌ی فعلی رابط این قابلیت‌ها رو داره:
+
+- برنامه به‌صورت Maximized باز می‌شه.
+- اجرا با لانچر مخفی انجام می‌شه و پنجره‌ی CMD یا پاورشل باز نمی‌شه.
+- کلید تایپ‌سیف قبل از ذخیره بررسی می‌شه.
+- نسخه‌ی اصلی کلید با محافظت ویندوز برای کاربر فعلی ذخیره می‌شه.
+- امکان پاک‌کردن کلید ذخیره‌شده وجود داره.
+- برای هر اتصال فقط یک دکمه داریم که براساس وضعیت خودش تغییر می‌کنه.
+- برای کدکس، دکمه بین حالت اتصال و قطع اتصال جابه‌جا می‌شه.
+- برای کلاد هم همین رفتار وجود داره.
+- دکمه‌ی بازکردن مستقیم کدکس و کلاد وجود داره.
+- وضعیت نصب کدکس، Bridge، کلاد و Plugin داخل برنامه نمایش داده می‌شه.
+- پایین برنامه لینک مستقیم کانال یوتیوب، گیت‌هاب و سایت قرار داره.
+
+## شروع سریع
+
+1. آخرین فایل ویندوز رو از بخش Release دانلود کن.
 2. فایل ZIP رو Extract کن.
-3. برای اجرای بدون پنجره‌ی Terminal روی `START_JEV_ROUTER.vbs` دابل‌کلیک کن. فایل `START_JEV_ROUTER.bat` فقط برای سازگاری نگه داشته شده.
-4. کلید `TypeSafe` رو Paste کن.
-5. روی **Verify & save** کلیک کن.
-6. برای Codex روی **Connect Codex** و برای Claude روی **Connect Claude** بزن.
+3. فایل زیر رو اجرا کن:
 
-برای استفاده‌ی عادی نیازی به باز کردن Terminal نیست. اگر پیش‌نیازهای بخش Codex روی سیستم نباشن، برنامه بعد از تایید کاربر می‌تونه اون‌ها رو در پس‌زمینه با `WinGet` نصب کنه.
+</div>
 
-## نسخه‌ی CLI
+`START_JEV_ROUTER.vbs`
 
-همین راه‌اندازی به‌صورت تعاملی داخل PowerShell هم وجود داره. در اجرای اول، کلید `TypeSafe API key` با ورودی مخفی گرفته می‌شه، اعتبارش بررسی می‌شه، بعد با `Windows DPAPI` برای Windows user فعلی ذخیره می‌شه و برنامه می‌پرسه تنظیمات برای کدوم محیط انجام بشه.
+<div dir="rtl" align="right">
 
-برای نصب یک‌خطی:
+4. کلید تایپ‌سیف رو Paste کن.
+5. روی دکمه‌ی ذخیره و بررسی کلیک کن.
+6. کدکس، کلاد یا هر دو رو وصل کن.
+7. اگر برنامه گفت رابط مقصد باید Refresh بشه، کدکس یا کلاد رو کامل ببند و دوباره باز کن.
+
+برای استفاده‌ی عادی از رابط گرافیکی نیازی به Terminal نیست.
+
+## کلید تایپ‌سیف
+
+برنامه کلید رو قبل از ذخیره بررسی می‌کنه.
+
+نسخه‌ی اصلی ذخیره‌شده با
+
+`Windows DPAPI`
+
+محافظت می‌شه و فقط برای Windows user فعلی قابل استفاده است.
+
+دکمه‌های مربوط به کلید این‌ها هستن:
+
+</div>
+
+`Verify & save`
+
+<div dir="rtl" align="right">
+
+کلید رو بررسی و ذخیره می‌کنه.
+
+</div>
+
+`Clear saved key`
+
+<div dir="rtl" align="right">
+
+فقط نسخه‌ی محافظت‌شده‌ای که خود برنامه ذخیره کرده رو حذف می‌کنه.
+
+پاک‌کردن کلید ذخیره‌شده به‌تنهایی اتصال فعال کدکس یا کلاد رو حذف نمی‌کنه. برای اون کار باید از دکمه‌ی قطع اتصال همون بخش استفاده کنی.
+
+## اتصال کدکس
+
+وقتی روی دکمه‌ی اتصال کدکس کلیک می‌کنی، برنامه می‌تونه:
+
+1. وجود کدکس، گیت، نود و Bridge رو بررسی کنه.
+2. در صورت نیاز پیش‌نیازها رو با
+
+`WinGet`
+
+نصب کنه.
+3. Bridge مربوط به کدکس رو نصب کنه.
+4. فایل Credential موردنیاز Bridge رو با Encoding مناسب ویندوز بسازه.
+5. تا جای ممکن دسترسی اون فایل رو به کاربر فعلی محدود کنه.
+6. مسیر فایل کلید رو مستقیماً به Installer مربوط به Bridge بده.
+7. قبل از تغییر تنظیمات کدکس Backup بسازه.
+8. Provider مربوط به Jev رو داخل تنظیمات کدکس فعال کنه.
+9. Background Task موردنیاز Bridge رو ثبت کنه.
+
+این مسیر از Login فعلی کدکس استفاده می‌کنه و برنامه از کاربر کلید API اوپن‌ای‌آی نمی‌خواد.
+
+## قطع اتصال کدکس
+
+وقتی Bridge شناسایی بشه، همون دکمه‌ی اتصال تبدیل می‌شه به دکمه‌ی قطع اتصال.
+
+در زمان قطع اتصال، برنامه اول تلاش می‌کنه Backup اصلی کدکس رو برگردونه.
+
+اگر فایل تنظیمات کدکس بعد از نصب تغییر کرده باشه و Restore کامل امن نباشه، برنامه فقط بخش‌های مربوط به Jev رو حذف می‌کنه و تنظیمات نامرتبط رو دست نمی‌زنه.
+
+بعد از اون این موارد هم پاک می‌شن:
+
+- سرویس یا Task مربوط به Bridge
+- پکیج سراسری Bridge
+- فایل کلید Bridge
+- State محلی Bridge
+
+بعد از قطع اتصال بهتره کدکس رو کامل ببندی و دوباره باز کنی تا لیست مدل‌ها Refresh بشه.
+
+## اتصال کلاد کد
+
+در زمان اتصال کلاد، برنامه:
+
+1. متغیر محیطی موردنیاز Plugin رو برای Windows user فعلی تنظیم می‌کنه.
+2. وجود CLI رسمی کلاد کد رو بررسی می‌کنه.
+3. اگر نصب نباشه، اون رو با
+
+`WinGet`
+
+نصب می‌کنه.
+4. Marketplace زیر رو ثبت می‌کنه:
+
+</div>
+
+`Mandrilsquad1441/jev-model-router`
+
+<div dir="rtl" align="right">
+
+5. Plugin زیر رو برای User فعلی نصب می‌کنه:
+
+</div>
+
+`jev-model-router@jev-model-router`
+
+<div dir="rtl" align="right">
+
+6. برنامه‌ی Claude Desktop رو باز می‌کنه.
+
+این مسیر همچنان یک Plugin integration است و مثل مسیر کدکس Transparent Bridge نیست.
+
+بعد از اولین نصب، اگر Plugin بلافاصله دیده نشد، Session مربوط به Claude Code یا خود Claude Desktop رو یک بار Restart کن.
+
+## قطع اتصال کلاد
+
+وقتی Plugin شناسایی بشه، همون دکمه به حالت قطع اتصال تغییر می‌کنه.
+
+در زمان قطع اتصال، برنامه تلاش می‌کنه:
+
+- Plugin مربوط به Jev رو حذف کنه.
+- Marketplace مربوطه رو پاک کنه.
+- متغیرهای محیطی Jev و TypeSafe ساخته‌شده برای این Integration رو حذف کنه.
+
+بعد از اون Claude Desktop رو یک بار Restart کن تا وضعیت Plugin Refresh بشه.
+
+## بازکردن برنامه‌ها
+
+داخل رابط 2 دکمه‌ی مستقیم وجود داره:
+
+</div>
+
+`Open Codex`
+
+`Open Claude`
+
+<div dir="rtl" align="right">
+
+برای کدکس اول Deep Link محلی امتحان می‌شه و اگر جواب نده، مسیر وب به‌عنوان Fallback باز می‌شه.
+
+## ریست کامل
+
+دکمه‌ی
+
+`Reset JEV`
+
+برای پاک‌سازی کامل تنظیمات ساخته‌شده توسط این پروژه است.
+
+این عملیات تا جای ممکن:
+
+- اتصال کدکس رو حذف می‌کنه.
+- تنظیمات قبلی کدکس رو برمی‌گردونه یا بخش‌های Jev رو پاک می‌کنه.
+- Bridge رو حذف می‌کنه.
+- Plugin و Marketplace کلاد رو حذف می‌کنه.
+- متغیرهای محیطی Jev و TypeSafe رو پاک می‌کنه.
+- کلید محافظت‌شده‌ی ذخیره‌شده داخل برنامه رو حذف می‌کنه.
+
+## نسخه‌ی خط فرمان
+
+نسخه‌ی CLI همچنان برای کاربرهایی که ترجیح می‌دن از پاورشل استفاده کنن وجود داره.
+
+برای نصب:
 
 </div>
 
@@ -46,7 +232,7 @@ irm https://raw.githubusercontent.com/pouramin/jev-router-windows/main/install.p
 
 <div dir="rtl" align="right">
 
-بعد از نصب، یک PowerShell جدید باز کن و این دستور رو اجرا کن:
+بعد از نصب:
 
 </div>
 
@@ -56,116 +242,71 @@ jev-router
 
 <div dir="rtl" align="right">
 
-منوی CLI این گزینه‌ها رو داره:
-
-</div>
-
-```text
-1 - ChatGPT / Codex Desktop (Codex routing)
-2 - Claude / Claude Code
-3 - Both
-4 - Change TypeSafe API key
-5 - Refresh status
-6 - Reset Codex
-7 - Reset Claude
-8 - Reset everything
-0 - Exit
-```
-
-<div dir="rtl" align="right">
-
-برای Codex، نسخه‌ی CLI همون Bridge و تنظیمات دائمی Windows رو انجام می‌ده؛ بنابراین وقتی بعداً Codex Desktop رو باز کنی، تنظیمات Jev همچنان فعاله.
-
-برای Claude، نسخه‌ی CLI حالا کل نصب Plugin رو خودش انجام می‌ده: اگر CLI رسمی Claude Code موجود نباشه با WinGet نصبش می‌کنه، Marketplace مربوط به Jev Model Router رو ثبت می‌کنه، Plugin رو در سطح User نصب می‌کنه و Claude Desktop رو باز می‌کنه. بعد از نصب اولیه فقط Session مربوط به Claude Code رو Restart یا Reload کن.
-
-## اتصال Codex
-
-مسیر Codex در نسخه‌ی فعلی بیشترین میزان اتوماسیون رو داره.
-
-وقتی روی **Connect Codex** کلیک می‌کنی، برنامه می‌تونه این کارها رو انجام بده:
-
-1. وجود `Git`، `Node.js`، `Codex` و `Jev Bridge` رو بررسی کنه.
-2. در صورت نیاز `Git` و `Node.js 24+` رو با `WinGet` نصب کنه.
-3. پروژه‌ی `ansidium/jev-codex-bridge` رو از GitHub نصب کنه.
-4. کلید `TypeSafe` رو در فایل موردنیاز Bridge قرار بده و دسترسی فایل رو تا جای ممکن به Windows user فعلی محدود کنه.
-5. دستور نصب `jev-bridge` رو در پس‌زمینه اجرا کنه؛ خود Bridge قبل از تغییر config از تنظیمات Codex نسخه‌ی Backup می‌سازه.
-6. Background Task موردنیاز Bridge رو در Windows ثبت کنه.
-7. بعد از Restart برنامه‌ی Codex، گزینه‌ی `Jev Router` رو برای استفاده آماده کنه.
-
-در این مسیر، Bridge از Login فعلی Codex استفاده می‌کنه و برنامه از کاربر `OpenAI API key` نمی‌خواد.
-
-## اتصال Claude Code
-
-برنامه‌ی `Claude Desktop` بخش گرافیکی `Claude Code` رو داره و Pluginها هم بین تجربه‌های Claude و Claude Code قابل استفاده هستن.
-
-در نسخه‌ی Alpha، دکمه‌ی **Connect Claude** این کارها رو انجام می‌ده:
-
-1. متغیر `TYPESAFE_API_KEY` رو برای Windows user فعلی تنظیم می‌کنه.
-2. اگر دستور `claude` موجود نباشه، CLI رسمی Claude Code رو با WinGet نصب می‌کنه.
-3. Marketplace زیر رو با CLI رسمی Claude Code ثبت می‌کنه:
-
-`Mandrilsquad1441/jev-model-router`
-
-4. Plugin زیر رو در سطح User نصب می‌کنه:
-
-`jev-model-router@jev-model-router`
-
-5. Claude Desktop رو باز می‌کنه. بعد از اولین نصب، Session مربوط به Claude Code رو یک بار Restart یا Reload کن.
-
-این بخش همچنان با برچسب `PLUGIN` نمایش داده می‌شه. Jev Model Router داخل Claude Code برای پیشنهاد و Delegation مدل استفاده می‌شه و مثل مسیر Codex یک Transparent Proxy برای هر Turn نیست.
-
-## ریست و برگشت به حالت پیش‌فرض
-
-هم نسخه‌ی گرافیکی و هم نسخه‌ی CLI گزینه‌های Reset دارن.
-
-- گزینه‌ی **Reset Codex** تنظیمات Codex رو در صورت وجود Backup به حالت قبل برمی‌گردونه، Bridge و Background Service رو حذف می‌کنه و کلیدهای Jev/TypeSafe رو از فایل Bridge پاک می‌کنه.
-- گزینه‌ی **Reset Claude** تا جای ممکن Plugin و Marketplace مربوط به Jev Model Router رو حذف می‌کنه و بعد متغیرهای Jev/TypeSafe ساخته‌شده توسط این پروژه رو از Windows user پاک می‌کنه.
-- گزینه‌ی **Reset everything** علاوه بر این‌ها، کلید محافظت‌شده‌ی TypeSafe که Jev Router با DPAPI ذخیره کرده رو هم حذف می‌کنه.
-
-## نگهداری TypeSafe API key
-
-کلیدی که داخل برنامه وارد می‌کنی در حالت اصلی با **Windows DPAPI** و فقط برای Windows user فعلی ذخیره می‌شه.
-
-برای سازگاری با ابزارهای فعلی 2 استثنا وجود داره:
-
-- پروژه‌ی Codex Bridge از فایل `~/.jev-router.env` استفاده می‌کنه؛ برنامه تلاش می‌کنه ACL اون فایل رو فقط به کاربر فعلی محدود کنه.
-- برای Plugin مربوط به Claude، در این نسخه‌ی Alpha از متغیر محیطی سطح User با نام `TYPESAFE_API_KEY` استفاده می‌شه.
-
-قبل از استفاده روی کامپیوتر Shared یا پروژه‌های حساس، فایل [SECURITY.md](SECURITY.md) رو بخون.
+نسخه‌ی CLI هم می‌تونه کدکس، کلاد یا هر دو رو تنظیم کنه، وضعیت رو Refresh کنه، کلید رو تغییر بده و Integrationها رو Reset کنه.
 
 ## حریم خصوصی
 
-برای اینکه Jev سختی و نوع درخواست رو تشخیص بده، بخشی از متن مرتبط با Routing باید برای TypeSafe ارسال بشه. درخواست اصلی Coding Agent هم مثل حالت معمول برای Provider خودش ارسال می‌شه.
+برای تصمیم Routing، تایپ‌سیف باید Context لازم برای دسته‌بندی درخواست رو دریافت کنه.
 
-مقدار دقیق Context و سیاست نگهداری اطلاعات به TypeSafe و Integration مورد استفاده بستگی داره. برای پروژه‌های خصوصی بهتره مستندات اون‌ها رو هم بررسی کنی.
+درخواست اصلی Coding Agent هم طبق روال عادی برای Provider انتخاب‌شده فرستاده می‌شه.
+
+برای پروژه‌های حساس بهتره قبل از استفاده، سیاست‌های TypeSafe و Integrationهای بالادستی رو هم بررسی کنی.
+
+## امنیت و نگهداری Credential
+
+در حال حاضر چند روش مختلف ذخیره‌سازی وجود داره چون Integrationهای بالادستی نیازهای متفاوت دارن:
+
+- کلید اصلی ذخیره‌شده توسط Jev Router با Windows DPAPI محافظت می‌شه.
+- Bridge مربوط به کدکس به فایل کلید محلی نیاز داره.
+- Plugin مربوط به کلاد از متغیر محیطی سطح User استفاده می‌کنه.
+
+برای جزئیات بیشتر فایل زیر رو ببین:
+
+[SECURITY.md](SECURITY.md)
 
 ## وضعیت پروژه
 
-این نسخه **Alpha** است و هدفش ساده‌کردن تجربه‌ی Windows برای کاربر عادیه. پروژه عمداً از Integrationهای متن‌باز موجود استفاده می‌کنه و رفتار اون‌ها رو به اسم قابلیت اختصاصی خودش معرفی نمی‌کنه.
+پروژه در حال حاضر در مرحله‌ی Alpha است.
 
-موارد فعلی:
+قابلیت‌های فعلی:
 
-- پشتیبانی از Windows 10 / 11
-- بررسی واقعی `TypeSafe API key`
-- ذخیره‌ی محلی کلید با `Windows DPAPI`
-- نصب و حذف ساده‌ی Codex Bridge
-- راه‌اندازی Background Service برای Codex
-- نصب خودکار Marketplace و Plugin مربوط به Claude Code
-- صفحه‌ی وضعیت و تشخیص پیش‌نیازها
+- ویندوز 10 و 11
+- رابط WPF
+- اجرای Maximized
+- اجرای بدون Console
+- بررسی کلید TypeSafe
+- ذخیره‌ی کلید با DPAPI
+- امکان پاک‌کردن کلید ذخیره‌شده
+- دکمه‌های Toggle برای اتصال و قطع اتصال
+- نصب و حذف Codex Bridge
+- پاک‌سازی Fallback تنظیمات کدکس در زمان Disconnect
+- راه‌اندازی Background Task کدکس
+- نصب خودکار Claude Code CLI در صورت نیاز
+- ثبت خودکار Marketplace کلاد
+- نصب و حذف خودکار Plugin کلاد
+- دکمه‌های بازکردن کدکس و کلاد
+- تشخیص وضعیت Integrationها
+- لینک مستقیم TunnelLab، GitHub و سایت
 - پکیج Portable
-- ساخت خودکار Release با GitHub Actions
+- Build، Smoke Test و Release خودکار با GitHub Actions
 
 موارد برنامه‌ریزی‌شده:
 
-- Windows Installer امضاشده
-- تشخیص دقیق‌تر وضعیت Plugin در Claude
-- مسیر Automatic Routing برای Claude در صورتی که Extension point پایدار و قابل اتکایی برای تغییر Model در هر Turn در دسترس باشه
-- Decision History و Router Health داخل خود برنامه
-- سیستم Update برای خود برنامه
+- Installer امضاشده‌ی ویندوز
+- تشخیص دقیق‌تر وضعیت Plugin کلاد
+- Decision History داخل برنامه
+- Router Health
+- سیستم آپدیت خود برنامه
 
 ## اجرای سورس
 
-رابط برنامه با `Windows PowerShell + WPF` نوشته شده تا برای اجرای نسخه‌ی Portable نیازی به Runtime جداگانه نباشه.
+رابط با
+
+`Windows PowerShell + WPF`
+
+ساخته شده.
+
+برای اجرا از سورس:
 
 </div>
 
@@ -175,14 +316,54 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\JevRouter.ps1
 
 <div dir="rtl" align="right">
 
-لانچر پیشنهادی `START_JEV_ROUTER.vbs` رابط WPF رو با Windows PowerShell مخفی اجرا می‌کنه؛ بنابراین هیچ پنجره‌ی Console ساخته نمی‌شه.
+برای اجرای معمول نسخه‌ی Portable از فایل زیر استفاده کن:
+
+</div>
+
+`START_JEV_ROUTER.vbs`
+
+<div dir="rtl" align="right">
+
+## لینک‌ها
+
+- سایت:
+
+</div>
+
+https://pouramin.dev/
+
+<div dir="rtl" align="right">
+
+- گیت‌هاب:
+
+</div>
+
+https://github.com/pouramin
+
+<div dir="rtl" align="right">
+
+- کانال TunnelLab:
+
+</div>
+
+https://www.youtube.com/@tunnellab
+
+<div dir="rtl" align="right">
 
 ## پروژه‌های Third-party
 
-جزئیات داخل [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) نوشته شده.
+جزئیات داخل فایل زیر نوشته شده:
+
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 
 ## License
 
-مجوز پروژه `MIT` است. فایل [LICENSE](LICENSE) رو ببین.
+مجوز پروژه
+
+`MIT`
+
+است.
+
+[LICENSE](LICENSE)
 
 </div>
