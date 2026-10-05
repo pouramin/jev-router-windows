@@ -401,29 +401,169 @@ function Install-CodexBridge {
     return $log
 }
 
+function Remove-JevCodexConfigFallback {
+    $bridgeHome = Join-Path $userHome '.config\jev-codex-bridge'
+    $recordPath = Join-Path $bridgeHome 'codex-config.json'
+
+    $record = $null
+    if (Test-Path -LiteralPath $recordPath) {
+        try { $record = Get-Content -LiteralPath $recordPath -Raw | ConvertFrom-Json } catch { }
+    }
+
+    $codexHome = $env:CODEX_HOME
+    if ([string]::IsNullOrWhiteSpace($codexHome)) {
+        $codexHome = Join-Path $userHome '.codex'
+    }
+
+    $configPath = if ($record -and $record.path) {
+        [string]$record.path
+    } else {
+        Join-Path $codexHome 'config.toml'
+    }
+
+    if (-not (Test-Path -LiteralPath $configPath)) {
+        return [pscustomobject]@{ Changed = $false; Path = $configPath; RestoredOriginalSelection = $false }
+    }
+
+    $originalModel = $null
+    $originalProvider = $null
+    if ($record -and $record.backup -and (Test-Path -LiteralPath ([string]$record.backup))) {
+        try {
+            foreach ($line in (Get-Content -LiteralPath ([string]$record.backup))) {
+                if (-not $originalModel -and $line -match '^\s*model\s*=') {
+                    $originalModel = $line
+                } elseif (-not $originalProvider -and $line -match '^\s*model_provider\s*=') {
+                    $originalProvider = $line
+                }
+            }
+        } catch { }
+    }
+
+    $lines = @(Get-Content -LiteralPath $configPath)
+    $out = New-Object System.Collections.Generic.List[string]
+    $insideJevProvider = $false
+    $changed = $false
+
+    foreach ($line in $lines) {
+        $trim = $line.Trim()
+
+        if ($insideJevProvider) {
+            if ($trim -match '^\[[^\]]+\]\s*$') {
+                $insideJevProvider = $false
+            } else {
+                $changed = $true
+                continue
+            }
+        }
+
+        if ($trim -match '^\[model_providers\.jev\]\s*$') {
+            $insideJevProvider = $true
+            $changed = $true
+            continue
+        }
+
+        if ($trim -match '^model\s*=\s*["'']jev-router["'']\s*$') {
+            $changed = $true
+            continue
+        }
+
+        if ($trim -match '^model_provider\s*=\s*["'']jev["'']\s*$') {
+            $changed = $true
+            continue
+        }
+
+        $out.Add($line)
+    }
+
+    $hasModel = @($out | Where-Object { $_ -match '^\s*model\s*=' }).Count -gt 0
+    $hasProvider = @($out | Where-Object { $_ -match '^\s*model_provider\s*=' }).Count -gt 0
+    $prefix = New-Object System.Collections.Generic.List[string]
+
+    if (-not $hasModel -and $originalModel) { $prefix.Add([string]$originalModel) }
+    if (-not $hasProvider -and $originalProvider) { $prefix.Add([string]$originalProvider) }
+
+    if ($prefix.Count -gt 0) {
+        $merged = New-Object System.Collections.Generic.List[string]
+        foreach ($line in $prefix) { $merged.Add($line) }
+        foreach ($line in $out) { $merged.Add($line) }
+        $out = $merged
+        $changed = $true
+    }
+
+    if ($changed) {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        [IO.File]::WriteAllLines($configPath, [string[]]$out.ToArray(), $utf8NoBom)
+        Write-JevRouterLog "Removed Jev provider entries from Codex config fallback: $configPath"
+    }
+
+    return [pscustomobject]@{
+        Changed = $changed
+        Path = $configPath
+        RestoredOriginalSelection = ($prefix.Count -gt 0)
+    }
+}
+
 function Remove-CodexBridge {
     $log = New-Object System.Collections.Generic.List[string]
     Refresh-ProcessPath
     $bridge = Get-CommandPathSafe -Name 'jev-bridge.cmd'
     if (-not $bridge) { $bridge = Get-CommandPathSafe -Name 'jev-bridge' }
+
+    $restoreSucceeded = $false
     if ($bridge) {
-        foreach ($args in @(@('restore-config'), @('service','remove'))) {
-            try {
-                $output = Invoke-ProcessCaptured -FilePath $bridge -ArgumentList $args -TimeoutSeconds 180
-                if ($output) { $log.Add($output) }
-            } catch { $log.Add("Warning: $($_.Exception.Message)") }
+        try {
+            $output = Invoke-ProcessCaptured -FilePath $bridge -ArgumentList @('restore-config') -TimeoutSeconds 180
+            if ($output) { $log.Add($output) }
+            $restoreSucceeded = $true
+        } catch {
+            $log.Add("Codex restore warning: $($_.Exception.Message)")
         }
     }
+
+    if (-not $restoreSucceeded) {
+        try {
+            $fallback = Remove-JevCodexConfigFallback
+            if ($fallback.Changed) {
+                $log.Add("Removed Jev Router entries from Codex config while preserving unrelated changes: $($fallback.Path)")
+            }
+        } catch {
+            $log.Add("Codex fallback cleanup warning: $($_.Exception.Message)")
+        }
+    }
+
+    if ($bridge) {
+        try {
+            $output = Invoke-ProcessCaptured -FilePath $bridge -ArgumentList @('service','remove') -TimeoutSeconds 180
+            if ($output) { $log.Add($output) }
+        } catch {
+            $log.Add("Service removal warning: $($_.Exception.Message)")
+        }
+    }
+
     $npm = Get-CommandPathSafe -Name 'npm.cmd'
     if (-not $npm) { $npm = Get-CommandPathSafe -Name 'npm' }
     if ($npm) {
         try {
             $output = Invoke-ProcessCaptured -FilePath $npm -ArgumentList @('uninstall','--global','jev-codex-bridge') -TimeoutSeconds 300
             if ($output) { $log.Add($output) }
-        } catch { $log.Add("Warning: $($_.Exception.Message)") }
+        } catch {
+            $log.Add("Package removal warning: $($_.Exception.Message)")
+        }
     }
+
     Remove-CodexBridgeKeyFile
-    Write-JevRouterLog 'Codex bridge removal finished and Codex configuration was restored where a bridge backup was available.'
+
+    $bridgeHome = Join-Path $userHome '.config\jev-codex-bridge'
+    if (Test-Path -LiteralPath $bridgeHome) {
+        try {
+            Remove-Item -LiteralPath $bridgeHome -Recurse -Force
+            $log.Add('Removed the local Jev Codex Bridge installation state.')
+        } catch {
+            $log.Add("Bridge state cleanup warning: $($_.Exception.Message)")
+        }
+    }
+
+    Write-JevRouterLog 'Codex bridge removal finished and Jev provider configuration was removed.'
     return $log
 }
 
