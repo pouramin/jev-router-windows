@@ -245,6 +245,7 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
        <RowDefinition Height="Auto"/>
        <RowDefinition Height="Auto"/>
        <RowDefinition Height="Auto"/>
+       <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
       <Grid>
@@ -280,7 +281,11 @@ Add-Type -AssemblyName PresentationFramework,PresentationCore,WindowsBase,System
        </StackPanel>
       </Border>
 
-      <Grid Grid.Row="3" Margin="0,18,0,0">
+      <TextBlock x:Name="ClaudeInstructions" Grid.Row="3"
+                 Text="After Prepare Claude: open Customize > Plugins > Add > Add marketplace, then paste the copied marketplace and install Jev Model Router."
+                 TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="10.5" LineHeight="16" Margin="0,14,0,0"/>
+
+      <Grid Grid.Row="4" Margin="0,18,0,0">
        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
        <Button x:Name="PrepareClaudeButton" Content="Prepare Claude" Height="42" Style="{StaticResource BlueButton}"/>
        <Button x:Name="OpenClaudeButton" Grid.Column="2" Content="Open Claude" Height="42" MinWidth="102" Style="{StaticResource SecondaryButton}"/>
